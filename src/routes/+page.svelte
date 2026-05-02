@@ -159,12 +159,10 @@
 	.info {
 		position: fixed;
 		bottom: 24px;
-		left: 50%;
-		transform: translateX(-50%);
+		left: 24px;
 		color: rgba(255, 255, 255, 0.8);
 		font-family: monospace;
 		font-size: clamp(12px, 2vw, 18px);
-		letter-spacing: 0.4em;
 		pointer-events: none;
 		z-index: 20;
 	}
