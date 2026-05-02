@@ -33,21 +33,32 @@
 	}
 
 	// Generate one frame of noise
+	let w = 0;
+	let h = 0;
+	let imageData: ImageData;
+	let data
+	let len: number
+
 	function generateNoise() {
 		if (!canvas) return;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
-		const w = canvas.width;
-		const h = canvas.height;
-        const imageData = ctx.createImageData(w, h);
-		const data = imageData.data;
-		const len = data.length;
+		if (w !== canvas.width || h !== canvas.height) {
+			w = canvas.width;
+			h = canvas.height;
+			imageData = ctx.createImageData(w, h);
+			data = imageData.data;
+			len = data.length;
+
+			for (let i = 0; i < len; i += 4) {
+				data[i + 3] = 255;
+			}
+		}
 
 		for (let i = 0; i < len; i += 4) {
 			const v = Math.random() * 255;
 			data[i] = data[i + 1] = data[i + 2] = v;
-			data[i + 3] = 255;
 		}
 		ctx.putImageData(imageData, 0, 0);
 	}
