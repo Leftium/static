@@ -22,6 +22,8 @@
 	let displayFrameTime = $state('0');
 	let displayFps = $state('0');
 
+	let dimensions = $state('0x0 (0x0)')
+
 	let canvas = $state<HTMLCanvasElement>();
 	let main = $state<HTMLElement>();
 
@@ -36,6 +38,8 @@
 
 		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
 		canvas.height = factor * window.innerHeight;
+
+		dimensions = `${window.innerWidth}x${window.innerHeight} (${canvas.width}x${canvas.height})`
 	}
 
 	// Generate one frame of noise
@@ -116,6 +120,7 @@
 	<div class="info">
 		<div>{displayFps} FPS</div>
 		<div>{displayFrameTime}ms</div>
+		<div>{dimensions}</div>
 	</div>
 </main>
 
