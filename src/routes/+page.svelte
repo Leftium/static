@@ -24,8 +24,16 @@
 
 	let dimensions = $state('0x0 (0x0)');
 
-	let canvas = $state<HTMLCanvasElement>();
 	let main = $state<HTMLElement>();
+	let canvas = $state<HTMLCanvasElement>();
+	
+	let canvasWidth = $state(0)
+	let canvasHeight = $state(0)
+
+	let paused = $state(false);
+	let infoHidden = $state(false);
+	let standardSize = $state(false);
+	let crtScanlines = $state(true)
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Resize canvas to fill window
@@ -36,10 +44,14 @@
 		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
 		const factor = 0.5; // Canvas size relative to window.
 
-		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
-		canvas.height = factor * window.innerHeight;
+		canvasWidth = standardSize ? 800 : window.innerWidth;
+		canvasHeight = standardSize ? 500 : window.innerHeight;
 
-		dimensions = `${window.innerWidth}x${window.innerHeight} (${canvas.width}x${canvas.height})`;
+		canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
+		canvas.height = factor * canvasHeight;
+		dimensions = `${canvasWidth}x${canvasHeight} (${canvas.width}x${canvas.height})`;
+
+		generateNoise()
 	}
 
 	// Generate one frame of noise
@@ -73,8 +85,6 @@
 		ctx.putImageData(imageData, 0, 0);
 	}
 
-	let paused = $state(false);
-	let infoHidden = $state(false);
 	onMount(() => {
 		on(window, 'keydown', (event) => {
 			if (event.key === 'Enter') {
@@ -92,6 +102,15 @@
 
 			if (event.key === 'i') {
 				infoHidden = !infoHidden;
+			}
+
+			if (event.key === 's') {
+				standardSize = !standardSize;
+				resize();
+			}
+
+			if (event.key === 'c') {
+				crtScanlines = !crtScanlines
 			}
 		});
 
@@ -118,9 +137,13 @@
 </script>
 
 <main bind:this={main}>
-	<canvas bind:this={canvas}></canvas>
+	<canvas
+		bind:this={canvas}
+		style:width={canvasWidth + 'px'}
+		style:height={canvasHeight + 'px'}
+	></canvas>
 
-	<div class="crt-overlay"></div>
+	<div class="crt-overlay" hidden={!crtScanlines}></div>
 
 	<div class="info" hidden={infoHidden}>
 		<div>{displayFps} FPS</div>
@@ -134,13 +157,18 @@
 		height: 100%;
 		margin: 0;
 		overflow: hidden;
-		background: #000;
+		background: #ccc;
+	}
+
+	main {
+		display: flex;
+		height: 100%;
+		justify-content: center;
+		align-items: center;
 	}
 
 	canvas {
 		display: block;
-		width: 100%;
-		height: 100%;
 	}
 
 	/* CRT scanlines */
