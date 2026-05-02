@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { on } from 'svelte/events';
 
-	// Based on: https://stackoverflow.com/a/5111475
+	// Frame counter based on: https://stackoverflow.com/a/5111475
 	// The higher this value, the less the fps will reflect temporary variations
 	// A value of 1 will only keep the last value
 	let filterStrength = 10;
@@ -21,17 +22,84 @@
 	let displayFrameTime = $state('0');
 	let displayFps = $state('0');
 
-    onMount(() => {
+	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
+	let canvas = $state<HTMLCanvasElement>();
+
+	// Resize canvas to fill window
+	function resize() {
+		if (!canvas) return;
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	// Generate one frame of noise
+	function generateNoise() {
+		if (!canvas) return;
+		const ctx = canvas.getContext('2d');
+		if (!ctx) return;
+
+		const w = canvas.width;
+		const h = canvas.height;
+        const imageData = ctx.createImageData(w, h);
+		const data = imageData.data;
+		const len = data.length;
+
+		for (let i = 0; i < len; i += 4) {
+			const v = Math.random() * 255;
+			data[i] = data[i + 1] = data[i + 2] = v;
+			data[i + 3] = 255;
+		}
+		ctx.putImageData(imageData, 0, 0);
+	}
+
+	onMount(() => {
+		on(window, 'resize', resize);
+
+		resize();
+
 		setInterval(() => {
+			generateNoise();
 			updateFps();
 		});
 
 		setInterval(() => {
-			displayFrameTime = frameTime.toFixed(3);
+			displayFrameTime = frameTime.toFixed(1);
 			displayFps = (1000 / frameTime).toFixed(1);
 		}, 500);
 	});
 </script>
 
-{displayFps} FPS<br />
-{displayFrameTime} ms
+<canvas bind:this={canvas}></canvas>
+
+<div class="info">
+	{displayFps} FPS<br />
+	{displayFrameTime}ms
+</div>
+
+<style>
+	:global(body, html) {
+		height: 100%;
+		margin: 0;
+		overflow: hidden;
+		background: #000;
+	}
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.info {
+		position: fixed;
+		top: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		color: rgba(255, 255, 255, 0.8);
+		font-family: monospace;
+		font-size: clamp(12px, 2vw, 18px);
+		letter-spacing: 0.4em;
+		pointer-events: none;
+		z-index: 20;
+	}
+</style>
