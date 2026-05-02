@@ -33,7 +33,7 @@
 		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
 		const factor = 1; // Canvas size relative to window.
-	
+
 		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
 		canvas.height = factor * window.innerHeight;
 	}
@@ -69,6 +69,7 @@
 		ctx.putImageData(imageData, 0, 0);
 	}
 
+	let paused = $state(false);
 	onMount(() => {
 		on(window, 'keydown', (event) => {
 			if (event.key === 'Enter') {
@@ -85,12 +86,18 @@
 			}
 		});
 
+		on(window, 'click', () => {
+			paused = !paused;
+		});
+
 		on(window, 'resize', resize);
 
 		resize();
 
 		setInterval(() => {
-			generateNoise();
+			if (!paused) {
+				generateNoise();
+			}
 			updateFps();
 		});
 
