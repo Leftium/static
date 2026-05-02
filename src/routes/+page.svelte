@@ -111,6 +111,8 @@
 <main bind:this={main}>
 	<canvas bind:this={canvas}></canvas>
 
+    <div class="crt-overlay"></div>
+
 	<div class="info">
 		<div>{displayFps} FPS</div>
 		<div>{displayFrameTime}ms</div>
@@ -129,6 +131,24 @@
 		display: block;
 		width: 100%;
 		height: 100%;
+	}
+
+	/* CRT scanlines */
+	.crt-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		background: repeating-linear-gradient(
+			to bottom,
+			transparent 0px,
+			transparent 2px,
+			rgba(0, 0, 0, 0.12) 2px,
+			rgba(0, 0, 0, 0.12) 4px
+		);
+		z-index: 10;
 	}
 
 	.info {
