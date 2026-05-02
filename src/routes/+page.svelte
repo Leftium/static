@@ -29,8 +29,13 @@
 	// Resize canvas to fill window
 	function resize() {
 		if (!canvas) return;
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
+
+		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
+		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
+		const factor = 1; // Canvas size relative to window.
+	
+		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
+		canvas.height = factor * window.innerHeight;
 	}
 
 	// Generate one frame of noise
@@ -100,8 +105,8 @@
 	<canvas bind:this={canvas}></canvas>
 
 	<div class="info">
-		{displayFps} FPS<br />
-		{displayFrameTime}ms
+		<div>{displayFps} FPS</div>
+		<div>{displayFrameTime}ms</div>
 	</div>
 </main>
 
