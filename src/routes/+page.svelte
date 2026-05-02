@@ -32,7 +32,7 @@
 
 		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
-		const factor = 1; // Canvas size relative to window.
+		const factor = 0.5; // Canvas size relative to window.
 
 		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
 		canvas.height = factor * window.innerHeight;
@@ -111,7 +111,7 @@
 <main bind:this={main}>
 	<canvas bind:this={canvas}></canvas>
 
-    <div class="crt-overlay"></div>
+	<div class="crt-overlay"></div>
 
 	<div class="info">
 		<div>{displayFps} FPS</div>
