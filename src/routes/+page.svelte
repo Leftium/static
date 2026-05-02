@@ -22,9 +22,10 @@
 	let displayFrameTime = $state('0');
 	let displayFps = $state('0');
 
-	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	let canvas = $state<HTMLCanvasElement>();
+	let main = $state<HTMLElement>();
 
+	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Resize canvas to fill window
 	function resize() {
 		if (!canvas) return;
@@ -36,8 +37,8 @@
 	let w = 0;
 	let h = 0;
 	let imageData: ImageData;
-	let data
-	let len: number
+	let data;
+	let len: number;
 
 	function generateNoise() {
 		if (!canvas) return;
@@ -64,6 +65,21 @@
 	}
 
 	onMount(() => {
+		on(window, 'keydown', (event) => {
+			if (event.key === 'Enter') {
+				// Check if we're in fullscreen mode
+				if (document.fullscreenElement) {
+					document.exitFullscreen();
+					return;
+				}
+				// Otherwise enter fullscreen mode
+				if (!main) return;
+				main.requestFullscreen().catch((err) => {
+					console.error(`Error enabling fullscreen: ${err.message}`);
+				});
+			}
+		});
+
 		on(window, 'resize', resize);
 
 		resize();
@@ -80,12 +96,14 @@
 	});
 </script>
 
-<canvas bind:this={canvas}></canvas>
+<main bind:this={main}>
+	<canvas bind:this={canvas}></canvas>
 
-<div class="info">
-	{displayFps} FPS<br />
-	{displayFrameTime}ms
-</div>
+	<div class="info">
+		{displayFps} FPS<br />
+		{displayFrameTime}ms
+	</div>
+</main>
 
 <style>
 	:global(body, html) {
@@ -103,7 +121,7 @@
 
 	.info {
 		position: fixed;
-		top: 24px;
+		bottom: 24px;
 		left: 50%;
 		transform: translateX(-50%);
 		color: rgba(255, 255, 255, 0.8);
