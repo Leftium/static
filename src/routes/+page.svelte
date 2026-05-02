@@ -22,7 +22,7 @@
 	let displayFrameTime = $state('0');
 	let displayFps = $state('0');
 
-	let dimensions = $state('0x0 (0x0)')
+	let dimensions = $state('0x0 (0x0)');
 
 	let canvas = $state<HTMLCanvasElement>();
 	let main = $state<HTMLElement>();
@@ -39,7 +39,7 @@
 		canvas.width = (factor * window.innerWidth) / crtPixelAspectRatio;
 		canvas.height = factor * window.innerHeight;
 
-		dimensions = `${window.innerWidth}x${window.innerHeight} (${canvas.width}x${canvas.height})`
+		dimensions = `${window.innerWidth}x${window.innerHeight} (${canvas.width}x${canvas.height})`;
 	}
 
 	// Generate one frame of noise
@@ -74,6 +74,7 @@
 	}
 
 	let paused = $state(false);
+	let infoHidden = $state(false);
 	onMount(() => {
 		on(window, 'keydown', (event) => {
 			if (event.key === 'Enter') {
@@ -87,6 +88,10 @@
 				main.requestFullscreen().catch((err) => {
 					console.error(`Error enabling fullscreen: ${err.message}`);
 				});
+			}
+
+			if (event.key === 'i') {
+				infoHidden = !infoHidden;
 			}
 		});
 
@@ -117,7 +122,7 @@
 
 	<div class="crt-overlay"></div>
 
-	<div class="info">
+	<div class="info" hidden={infoHidden}>
 		<div>{displayFps} FPS</div>
 		<div>{displayFrameTime}ms</div>
 		<div>{dimensions}</div>
