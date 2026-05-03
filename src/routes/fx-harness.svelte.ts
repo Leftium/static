@@ -1,4 +1,4 @@
-import { tick, untrack } from 'svelte';
+import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 
 export type FxState = {
