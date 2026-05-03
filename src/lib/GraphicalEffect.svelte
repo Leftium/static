@@ -19,7 +19,6 @@
 			<div>{fx.displayFps} FPS</div>
 			<div>{fx.displayFrameTime}ms</div>
 			<div>{fx.dimensions}</div>
-			<div>{fx.paused} {fx.active}</div>
 		</div>
 	</div>
 </graphical-effect>
