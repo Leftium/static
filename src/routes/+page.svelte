@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { on } from 'svelte/events';
+	import { untrack } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
 
 	// Frame counter based on: https://stackoverflow.com/a/5111475
 	// The higher this value, the less the fps will reflect temporary variations
@@ -24,22 +24,17 @@
 
 	let dimensions = $state('0x0 (0x0)');
 
-	let main = $state<HTMLElement>();
-	let canvas = $state<HTMLCanvasElement>();
-	
-	let canvasWidth = $state(0)
-	let canvasHeight = $state(0)
+	let canvasWidth = $state(0);
+	let canvasHeight = $state(0);
 
 	let paused = $state(false);
 	let infoHidden = $state(false);
 	let standardSize = $state(false);
-	let crtScanlines = $state(true)
+	let crtScanlines = $state(true);
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Resize canvas to fill window
-	function resize() {
-		if (!canvas) return;
-
+	function resizeHandler(canvas: HTMLCanvasElement) {
 		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
 		const factor = 0.5; // Canvas size relative to window.
@@ -49,9 +44,11 @@
 
 		canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
 		canvas.height = factor * canvasHeight;
+		canvas.style.width = `${canvasWidth}px`;
+		canvas.style.height = `${canvasHeight}px`;
 		dimensions = `${canvasWidth}x${canvasHeight} (${canvas.width}x${canvas.height})`;
 
-		generateNoise()
+		generateNoise(canvas);
 	}
 
 	// Generate one frame of noise
@@ -61,8 +58,7 @@
 	let data;
 	let len: number;
 
-	function generateNoise() {
-		if (!canvas) return;
+	function generateNoise(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
@@ -85,64 +81,105 @@
 		ctx.putImageData(imageData, 0, 0);
 	}
 
-	onMount(() => {
-		on(window, 'keydown', (event) => {
-			if (event.key === 'Enter') {
-				// Check if we're in fullscreen mode
-				if (document.fullscreenElement) {
-					document.exitFullscreen();
-					return;
+	const globalHandlers = {
+		resize: (canvas: HTMLCanvasElement) => {
+			return () => resizeHandler(canvas);
+		},
+		click: () => {
+			return () => (paused = !paused);
+		},
+		keydown: (canvas: HTMLCanvasElement) => {
+			return (e: Event) => {
+				const event = e as KeyboardEvent;
+				if (event.key === 'Enter') {
+					// Check if we're in fullscreen mode
+					if (document.fullscreenElement) {
+						document.exitFullscreen();
+						return;
+					}
+					// Otherwise enter fullscreen mode
+					if (!canvas.parentElement) return;
+					canvas.parentElement.requestFullscreen().catch((err) => {
+						console.error(`Error enabling fullscreen: ${err.message}`);
+					});
 				}
-				// Otherwise enter fullscreen mode
-				if (!main) return;
-				main.requestFullscreen().catch((err) => {
-					console.error(`Error enabling fullscreen: ${err.message}`);
-				});
+
+				if (event.key === 'i') {
+					infoHidden = !infoHidden;
+				}
+
+				if (event.key === 's') {
+					standardSize = !standardSize;
+					resizeHandler(canvas);
+				}
+
+				if (event.key === 'c') {
+					crtScanlines = !crtScanlines;
+				}
+			};
+		}
+	};
+
+	function updateHandler(canvas: HTMLCanvasElement) {
+		if (!paused) {
+			generateNoise(canvas);
+		}
+	}
+
+	function updateFpsDisplay(frameTime: number) {
+		displayFrameTime = frameTime.toFixed(1);
+		displayFps = (1000 / frameTime).toFixed(1);
+	}
+
+	type FxHarnessOptions = {
+		updateFpsDisplay: (frameTime: number) => void;
+		updateHandler: (canvas: HTMLCanvasElement) => void;
+		resizeHandler: (canvas: HTMLCanvasElement) => void;
+		globalHandlers: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
+	};
+
+	function fxHarness({
+		updateHandler,
+		resizeHandler,
+		globalHandlers
+	}: FxHarnessOptions): Attachment {
+		return (element) => {
+			const canvas = document.createElement('canvas');
+			element.appendChild(canvas);
+
+			const abortController = new AbortController();
+			const { signal } = abortController;
+
+			for (const [eventName, makeHandler] of Object.entries(globalHandlers)) {
+				window.addEventListener(eventName, makeHandler(canvas), { signal });
 			}
 
-			if (event.key === 'i') {
-				infoHidden = !infoHidden;
-			}
+			// Untrack to prevent this attachment from being run twice.
+			untrack(() => {
+				resizeHandler(canvas);
+			});
 
-			if (event.key === 's') {
-				standardSize = !standardSize;
-				resize();
-			}
+			const intervalIds = [
+				setInterval(() => {
+					updateHandler(canvas);
+					updateFps();
+				}),
 
-			if (event.key === 'c') {
-				crtScanlines = !crtScanlines
-			}
-		});
+				setInterval(() => updateFpsDisplay(frameTime), 500)
+			];
 
-		on(window, 'click', () => {
-			paused = !paused;
-		});
-
-		on(window, 'resize', resize);
-
-		resize();
-
-		setInterval(() => {
-			if (!paused) {
-				generateNoise();
-			}
-			updateFps();
-		});
-
-		setInterval(() => {
-			displayFrameTime = frameTime.toFixed(1);
-			displayFps = (1000 / frameTime).toFixed(1);
-		}, 500);
-	});
+			return () => {
+				// Clean up
+				abortController.abort();
+				for (const intervalId of intervalIds) {
+					clearInterval(intervalId);
+				}
+			};
+		};
+	}
 </script>
 
-<main bind:this={main}>
-	<canvas
-		bind:this={canvas}
-		style:width={canvasWidth + 'px'}
-		style:height={canvasHeight + 'px'}
-	></canvas>
-
+<main {@attach fxHarness({ updateFpsDisplay, updateHandler, resizeHandler, globalHandlers })}>
 	<div class="crt-overlay" hidden={!crtScanlines}></div>
 
 	<div class="info" hidden={infoHidden}>
@@ -165,10 +202,6 @@
 		height: 100%;
 		justify-content: center;
 		align-items: center;
-	}
-
-	canvas {
-		display: block;
 	}
 
 	/* CRT scanlines */
