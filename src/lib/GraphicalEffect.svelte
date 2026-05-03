@@ -1,15 +1,9 @@
 <script lang="ts">
-	import { makeFxHarness, type FxState } from './fx-harness.svelte';
+	import { makeFxHarness } from './fx-harness.svelte';
 
 	const { fx, fxHarness } = makeFxHarness();
 
-	interface Props {
-		init?: (fx: FxState) => void;
-		updateHandler: (fx: FxState) => void;
-		style: object;
-	}
-
-	const { init, updateHandler, style }: Props = $props();
+	const { init = null, updateHandler, style = { width: '100%', height: '100%' } } = $props();
 </script>
 
 <graphical-effect

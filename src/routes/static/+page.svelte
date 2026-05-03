@@ -20,7 +20,6 @@
 		updateHandler={(fx: FxState) => {
 			generateNoise(fx.imageData);
 		}}
-		style={{ width: '100%', height: '100%' }}
 	></GraphicalEffect>
 </main>
 
