@@ -25,11 +25,22 @@
 	}
 </script>
 
-<GraphicalEffect
-	updateHandler={(fx: FxState) => generateNoise(fx.imageData)}
-	style={{ width: '20%', height: '20%' }}
-></GraphicalEffect>
-<GraphicalEffect
-	updateHandler={(fx: FxState) => generateNoise2(fx.imageData)}
-	style={{ width: '20%', height: '20%' }}
-></GraphicalEffect>
+<main>
+	<GraphicalEffect
+		updateHandler={(fx: FxState) => generateNoise(fx.imageData)}
+		style={{ width: '30%', height: '50%' }}
+	></GraphicalEffect>
+	<GraphicalEffect
+		updateHandler={(fx: FxState) => generateNoise2(fx.imageData)}
+		style={{ width: '50%', height: '30%' }}
+	></GraphicalEffect>
+</main>
+
+<style>
+	main {
+		display: flex;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+	}
+</style>

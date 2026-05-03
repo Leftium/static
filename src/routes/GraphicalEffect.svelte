@@ -6,7 +6,7 @@
 	const { updateHandler, style } = $props();
 </script>
 
-<main
+<graphical-effect
 	{@attach fxHarness({ updateHandler })}
 	style={Object.entries(style)
 		.map(([k, v]) => `${k}:${v}`)
@@ -20,10 +20,10 @@
 		<div>{fx.dimensions}</div>
 		<div>{fx.paused} {fx.active}</div>
 	</div>
-</main>
+</graphical-effect>
 
 <style>
-	main {
+	graphical-effect {
 		position: relative;
 		display: flex;
 		height: 100%;
