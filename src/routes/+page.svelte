@@ -3,11 +3,7 @@
 
 	let displayFrameTime = $state('0');
 	let displayFps = $state('0');
-
 	let dimensions = $state('0x0 (0x0)');
-
-	let canvasWidth = $state(0);
-	let canvasHeight = $state(0);
 
 	let paused = $state(false);
 	let infoHidden = $state(false);
@@ -15,14 +11,27 @@
 	let crtScanlines = $state(true);
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
+	// Generate one frame of noise
+	function generateNoise(imageData: ImageData) {
+		const data = imageData.data;
+		const len = data.length;
+		for (let i = 0; i < len; i += 4) {
+			const v = Math.random() * 255;
+			data[i] = data[i + 1] = data[i + 2] = v;
+		}
+		return imageData;
+	}
+
+	let imageData: ImageData | undefined;
+
 	// Resize canvas to fill window
 	function resizeHandler(canvas: HTMLCanvasElement) {
 		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
 		const factor = 0.5; // Canvas size relative to window.
 
-		canvasWidth = standardSize ? 800 : window.innerWidth;
-		canvasHeight = standardSize ? 500 : window.innerHeight;
+		const canvasWidth = standardSize ? 800 : window.innerWidth;
+		const canvasHeight = standardSize ? 500 : window.innerHeight;
 
 		canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
 		canvas.height = factor * canvasHeight;
@@ -30,36 +39,20 @@
 		canvas.style.height = `${canvasHeight}px`;
 		dimensions = `${canvasWidth}x${canvasHeight} (${canvas.width}x${canvas.height})`;
 
-		generateNoise(canvas);
-	}
-
-	// Generate one frame of noise
-	let w = 0;
-	let h = 0;
-	let imageData: ImageData;
-	let data;
-	let len: number;
-
-	function generateNoise(canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
-		if (w !== canvas.width || h !== canvas.height) {
-			w = canvas.width;
-			h = canvas.height;
-			imageData = ctx.createImageData(w, h);
-			data = imageData.data;
-			len = data.length;
+		if (!imageData || imageData.width !== canvas.width || imageData.height !== canvas.height) {
+			imageData = ctx.createImageData(canvas.width, canvas.height);
+			const data = imageData.data;
+			const len = data.length;
 
 			for (let i = 0; i < len; i += 4) {
 				data[i + 3] = 255;
 			}
 		}
 
-		for (let i = 0; i < len; i += 4) {
-			const v = Math.random() * 255;
-			data[i] = data[i + 1] = data[i + 2] = v;
-		}
+		imageData = generateNoise(imageData);
 		ctx.putImageData(imageData, 0, 0);
 	}
 
@@ -103,8 +96,10 @@
 	};
 
 	function updateHandler(canvas: HTMLCanvasElement) {
-		if (!paused) {
-			generateNoise(canvas);
+		const ctx = canvas.getContext('2d');
+		if (ctx && imageData && !paused) {
+			imageData = generateNoise(imageData);
+			ctx.putImageData(imageData, 0, 0);
 		}
 	}
 
@@ -112,7 +107,6 @@
 		displayFrameTime = frameTime.toFixed(1);
 		displayFps = (1000 / frameTime).toFixed(1);
 	}
-
 </script>
 
 <main {@attach fxHarness({ updateFpsDisplay, updateHandler, resizeHandler, globalHandlers })}>
