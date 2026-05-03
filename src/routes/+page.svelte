@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { FxState } from './fx-harness.svelte';
-	import GraphicalEffect from './GraphicalEffect.svelte';
+	import type { FxState } from '$lib/fx-harness.svelte';
+	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Generate one frame of noise
