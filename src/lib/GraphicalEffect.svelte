@@ -16,7 +16,7 @@
 		<canvas bind:this={fx.canvas}></canvas>
 		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
 		<div class="info" hidden={fx.infoHidden}>
-			<div>{fx.displayFps} FPS</div>
+			<div>{fx.displayFps} FPS ({fx.displayFpsPercentage}%)</div>
 			<div>{fx.displayFrameTime}ms</div>
 			<div>{fx.dimensions}</div>
 		</div>

@@ -7,8 +7,11 @@ export type FxState = {
 	standardSize: boolean;
 	crtScanlines: boolean;
 	active: boolean;
+
 	displayFrameTime: string;
 	displayFps: string;
+	displayFpsPercentage: string;
+
 	dimensions: string;
 	imageData: ImageData;
 	canvas: HTMLCanvasElement;
@@ -44,8 +47,11 @@ export function makeFxHarness() {
 		standardSize: false,
 		crtScanlines: true,
 		active: false,
+
 		displayFrameTime: 'N',
 		displayFps: 'N',
+		displayFpsPercentage: 'N',
+
 		dimensions: 'WxH (WxH)',
 		imageData: null as unknown as ImageData,
 		canvas: null as unknown as HTMLCanvasElement
@@ -107,7 +113,7 @@ export function makeFxHarness() {
 			function internalResizeHandler(fx: FxState) {
 				// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
-				const factor = 0.5; // Canvas size relative to window.
+				const factor = 1 / 2; // Canvas size relative to window.
 
 				const canvasWidth = fx.standardSize
 					? 800
@@ -207,8 +213,10 @@ export function makeFxHarness() {
 				}),
 
 				setInterval(() => {
+					const fps = 1000 / frameTime;
 					fx.displayFrameTime = frameTime.toFixed(1);
-					fx.displayFps = (1000 / frameTime).toFixed(1);
+					fx.displayFps = fps.toFixed(0);
+					fx.displayFpsPercentage = ((fps * 100) / 250).toFixed(0);
 				}, 500)
 			];
 
