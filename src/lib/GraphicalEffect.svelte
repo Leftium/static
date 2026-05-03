@@ -3,11 +3,11 @@
 
 	const { fx, fxHarness } = makeFxHarness();
 
-	const { updateHandler, style } = $props();
+	const { init, updateHandler, style } = $props();
 </script>
 
 <graphical-effect
-	{@attach fxHarness({ updateHandler })}
+	{@attach fxHarness({ init, updateHandler })}
 	style={Object.entries(style)
 		.map(([k, v]) => `${k}:${v}`)
 		.join(';')}

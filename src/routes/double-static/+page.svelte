@@ -33,6 +33,9 @@
 		style={{ width: '30%', height: '50%' }}
 	></GraphicalEffect>
 	<GraphicalEffect
+		init={(fx: FxState) => {
+			fx.factor = 1
+		}}
 		updateHandler={(fx: FxState) => {
 			generateNoise2(fx.imageData);
 		}}

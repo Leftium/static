@@ -8,6 +8,8 @@ export type FxState = {
 	crtScanlines: boolean;
 	active: boolean;
 
+	factor: number;
+
 	displayFrameTime: string;
 	displayFps: string;
 	displayFpsPercentage: string;
@@ -18,6 +20,7 @@ export type FxState = {
 };
 
 type FxHarnessOptions = {
+	init?: (fx: FxState) => void;
 	updateHandler: (fx: FxState) => void;
 	resizeHandler?: (canvas: HTMLCanvasElement) => void;
 	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
@@ -48,16 +51,19 @@ export function makeFxHarness() {
 		crtScanlines: true,
 		active: false,
 
+		factor: 1 / 2,
+
 		displayFrameTime: 'N',
 		displayFps: 'N',
 		displayFpsPercentage: 'N',
-
 		dimensions: 'WxH (WxH)',
+
 		imageData: null as unknown as ImageData,
 		canvas: null as unknown as HTMLCanvasElement
 	});
 
 	function fxHarness({
+        init,
 		updateHandler,
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		resizeHandler,
@@ -112,7 +118,6 @@ export function makeFxHarness() {
 			function internalResizeHandler(fx: FxState) {
 				// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
-				const factor = 1 / 2; // Canvas size relative to window.
 
 				const canvasWidth = fx.standardSize
 					? 800
@@ -125,8 +130,8 @@ export function makeFxHarness() {
 						? window.innerHeight
 						: element.clientHeight;
 
-				fx.canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
-				fx.canvas.height = factor * canvasHeight;
+				fx.canvas.width = (fx.factor * canvasWidth) / crtPixelAspectRatio;
+				fx.canvas.height = fx.factor * canvasHeight;
 				fx.canvas.style.width = `${canvasWidth}px`;
 				fx.canvas.style.height = `${canvasHeight}px`;
 
@@ -194,6 +199,10 @@ export function makeFxHarness() {
 
 			element.addEventListener('mouseenter', () => (fx.active = true), { signal });
 			element.addEventListener('mouseleave', () => (fx.active = false), { signal });
+
+			if (init) {
+				init(fx);
+			}
 
 			// Untrack to prevent this attachment from being run twice.
 			untrack(() => {
