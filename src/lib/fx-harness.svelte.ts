@@ -97,10 +97,10 @@ export function makeFxHarness() {
 					fx.crtScanlines = !fx.crtScanlines;
 				}
 
-                console.log(event.key)
-                if(event.key === ' ') {
-                    fx.paused = !fx.paused
-                }
+				console.log(event.key);
+				if (event.key === ' ') {
+					fx.paused = !fx.paused;
+				}
 			}
 
 			// Resize canvas to fill window
