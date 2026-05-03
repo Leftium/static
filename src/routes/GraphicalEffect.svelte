@@ -1,22 +1,30 @@
 <script lang="ts">
-	import { fxHarness, fx } from './fx-harness.svelte';
+	import { makeFxHarness } from './fx-harness.svelte';
 
-	const { updateHandler } = $props();
+	const { fx, fxHarness } = makeFxHarness();
+
+	const { updateHandler, style } = $props();
 </script>
 
-<main {@attach fxHarness({ updateHandler })}>
+<main
+	{@attach fxHarness({ updateHandler })}
+	style={Object.entries(style)
+		.map(([k, v]) => `${k}:${v}`)
+		.join(';')}
+>
 	<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
 
 	<div class="info" hidden={fx.infoHidden}>
 		<div>{fx.displayFps} FPS</div>
 		<div>{fx.displayFrameTime}ms</div>
 		<div>{fx.dimensions}</div>
-		<div>{fx.paused}</div>
+		<div>{fx.paused} {fx.active}</div>
 	</div>
 </main>
 
 <style>
 	main {
+		position: relative;
 		display: flex;
 		height: 100%;
 		justify-content: center;
@@ -25,7 +33,7 @@
 
 	/* CRT scanlines */
 	.crt-overlay {
-		position: fixed;
+		position: absolute;
 		inset: 0;
 		background: repeating-linear-gradient(
 			to bottom,
@@ -39,7 +47,7 @@
 	}
 
 	.info {
-		position: fixed;
+		position: absolute;
 		bottom: 24px;
 		left: 24px;
 		color: rgba(255, 255, 255, 0.8);

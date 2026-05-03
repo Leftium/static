@@ -1,175 +1,209 @@
-import { untrack } from 'svelte';
+import { tick, untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 
-type FxHarnessOptions = {
-	updateHandler: (canvas: HTMLCanvasElement) => void;
-	resizeHandler?: (canvas: HTMLCanvasElement) => void;
-	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
-};
-
-type FxState = {
+export type FxState = {
 	paused: boolean;
 	infoHidden: boolean;
 	standardSize: boolean;
 	crtScanlines: boolean;
+	active: boolean;
 	displayFrameTime: string;
 	displayFps: string;
 	dimensions: string;
 	imageData: ImageData;
+	canvas: HTMLCanvasElement;
 };
 
-// Frame counter based on: https://stackoverflow.com/a/5111475
-// The higher this value, the less the fps will reflect temporary variations
-// A value of 1 will only keep the last value
-const filterStrength = 10;
+type FxHarnessOptions = {
+	updateHandler: (fx: FxState) => void;
+	resizeHandler?: (canvas: HTMLCanvasElement) => void;
+	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
+};
 
-let frameTime = $state(0);
+export function makeFxHarness() {
+	// Frame counter based on: https://stackoverflow.com/a/5111475
+	// The higher this value, the less the fps will reflect temporary variations
+	// A value of 1 will only keep the last value
+	const filterStrength = 10;
 
-let lastLoop = performance.now();
-let thisLoop = lastLoop;
+	let frameTime = $state(0);
 
-function updateFps() {
-	thisLoop = performance.now();
-	const thisFrameTime = thisLoop - lastLoop;
-	frameTime += (thisFrameTime - frameTime) / filterStrength;
-	lastLoop = thisLoop;
-}
+	let lastLoop = performance.now();
+	let thisLoop = lastLoop;
 
-const paused = $state(false);
-const infoHidden = $state(false);
-const standardSize = $state(false);
-const crtScanlines = $state(true);
-
-export const fx = $state<FxState>({
-	paused,
-	infoHidden,
-	standardSize,
-	crtScanlines,
-	displayFrameTime: 'N',
-	displayFps: 'N',
-	dimensions: 'WxH (WxH)',
-	imageData: null as unknown as ImageData
-});
-
-export function fxHarness({
-	updateHandler,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	resizeHandler,
-	globalHandlers
-}: FxHarnessOptions): Attachment {
-	function internalUpdateHandler(canvas: HTMLCanvasElement) {
-		updateHandler(canvas);
-		const ctx = canvas.getContext('2d');
-		if (ctx && fx.imageData && !fx.paused) {
-			ctx.putImageData(fx.imageData, 0, 0);
-		}
+	function updateFps() {
+		thisLoop = performance.now();
+		const thisFrameTime = thisLoop - lastLoop;
+		frameTime += (thisFrameTime - frameTime) / filterStrength;
+		lastLoop = thisLoop;
 	}
 
-	// Resize canvas to fill window
-	function internalResizeHandler(canvas: HTMLCanvasElement) {
-		// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
-		const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
-		const factor = 0.5; // Canvas size relative to window.
+	const fx = $state<FxState>({
+		paused: false,
+		infoHidden: false,
+		standardSize: false,
+		crtScanlines: true,
+		active: false,
+		displayFrameTime: 'N',
+		displayFps: 'N',
+		dimensions: 'WxH (WxH)',
+		imageData: null as unknown as ImageData,
+		canvas: null as unknown as HTMLCanvasElement
+	});
 
-		const canvasWidth = fx.standardSize ? 800 : window.innerWidth;
-		const canvasHeight = fx.standardSize ? 500 : window.innerHeight;
-
-		canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
-		canvas.height = factor * canvasHeight;
-		canvas.style.width = `${canvasWidth}px`;
-		canvas.style.height = `${canvasHeight}px`;
-		fx.dimensions = `${canvasWidth}x${canvasHeight} (${canvas.width}x${canvas.height})`;
-
-		if (
-			!fx.imageData ||
-			fx.imageData.width !== canvas.width ||
-			fx.imageData.height !== canvas.height
-		) {
-			fx.imageData = new ImageData(canvas.width, canvas.height);
-			const data = fx.imageData.data;
-			const len = data.length;
-
-			for (let i = 0; i < len; i += 4) {
-				data[i + 3] = 255;
+	function fxHarness({
+		updateHandler,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		resizeHandler,
+		globalHandlers
+	}: FxHarnessOptions): Attachment {
+		function internalUpdateHandler(fx: FxState) {
+			updateHandler(fx);
+			const ctx = fx.canvas.getContext('2d');
+			if (ctx && fx.imageData && !fx.paused) {
+				ctx.putImageData(fx.imageData, 0, 0);
 			}
 		}
-		updateHandler(canvas);
 
-		const ctx = canvas.getContext('2d');
-		if (ctx && fx.imageData) {
-			ctx.putImageData(fx.imageData, 0, 0);
-		}
-	}
+		return (element) => {
+			console.log('attaching');
+			function internalKeydownHandler(fx: FxState, event: KeyboardEvent) {
+				if (event.key === 'Enter') {
+					// Check if we're in fullscreen mode
+					if (document.fullscreenElement) {
+						document.exitFullscreen();
+						//internalResizeHandler(fx);
+						return;
+					}
+					// Otherwise enter fullscreen mode
+					if (!fx.active || !fx.canvas.parentElement) return;
+					fx.canvas.parentElement.requestFullscreen().catch((err) => {
+						console.error(`Error enabling fullscreen: ${err.message}`);
+					});
+				}
 
-	function internalKeydownHandler(canvas: HTMLCanvasElement, event: KeyboardEvent) {
-		console.log('internalKeydownHandler');
-		if (event.key === 'Enter') {
-			// Check if we're in fullscreen mode
-			if (document.fullscreenElement) {
-				document.exitFullscreen();
-				return;
+				if (!fx.active) return;
+
+				if (event.key === 'i') {
+					fx.infoHidden = !fx.infoHidden;
+				}
+
+				if (event.key === 's') {
+					fx.standardSize = !fx.standardSize;
+					internalResizeHandler(fx);
+				}
+
+				if (event.key === 'c') {
+					fx.crtScanlines = !fx.crtScanlines;
+				}
 			}
-			// Otherwise enter fullscreen mode
-			if (!canvas.parentElement) return;
-			canvas.parentElement.requestFullscreen().catch((err) => {
-				console.error(`Error enabling fullscreen: ${err.message}`);
+
+			// Resize canvas to fill window
+			function internalResizeHandler(fx: FxState) {
+				// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
+				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
+				const factor = 0.5; // Canvas size relative to window.
+
+				const canvasWidth = fx.standardSize ? 800 : element.clientWidth;
+				const canvasHeight = fx.standardSize ? 500 : element.clientHeight;
+
+				fx.canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
+				fx.canvas.height = factor * canvasHeight;
+				fx.canvas.style.width = `${canvasWidth}px`;
+				fx.canvas.style.height = `${canvasHeight}px`;
+				fx.dimensions = `${canvasWidth}x${canvasHeight} (${fx.canvas.width}x${fx.canvas.height})`;
+
+				/*
+				console.log(
+					`internalResizeHandler: ${canvasWidth}x${canvasHeight} (${fx.canvas.width}x${fx.canvas.height})`,
+					fx.canvas
+				);
+				*/
+
+				const ctx = fx.canvas.getContext('2d');
+
+				if (
+					ctx &&
+					(!fx.imageData ||
+						fx.imageData.width !== fx.canvas.width ||
+						fx.imageData.height !== fx.canvas.height)
+				) {
+					fx.imageData = ctx?.createImageData(fx.canvas.width, fx.canvas.height);
+					const data = fx.imageData.data;
+					const len = data.length;
+
+					for (let i = 0; i < len; i += 4) {
+						data[i + 3] = 255;
+					}
+				}
+				internalUpdateHandler(fx);
+
+				if (ctx && fx.imageData) {
+					ctx.putImageData(fx.imageData, 0, 0);
+				}
+			}
+
+			untrack(() => {
+				fx.canvas = document.createElement('canvas');
+				element.appendChild(fx.canvas);
 			});
-		}
 
-		if (event.key === 'i') {
-			fx.infoHidden = !fx.infoHidden;
-		}
+			const abortController = new AbortController();
+			const { signal } = abortController;
 
-		if (event.key === 's') {
-			fx.standardSize = !fx.standardSize;
-			internalResizeHandler(canvas);
-		}
+			if (globalHandlers) {
+				for (const [eventName, makeHandler] of Object.entries(globalHandlers)) {
+					window.addEventListener(eventName, makeHandler(fx.canvas), { signal });
+				}
+			}
 
-		if (event.key === 'c') {
-			fx.crtScanlines = !fx.crtScanlines;
-		}
+			window.addEventListener('keydown', (e) => internalKeydownHandler(fx, e), {
+				signal
+			});
+			window.addEventListener('resize', () => internalResizeHandler(fx), { signal });
+			element.addEventListener('resize', () => internalResizeHandler(fx), { signal });
+			element.addEventListener(
+				'click',
+				() => {
+					if (fx.active) {
+						fx.paused = !fx.paused;
+					}
+				},
+				{ signal }
+			);
+
+			element.addEventListener('mouseenter', () => (fx.active = true), { signal });
+			element.addEventListener('mouseleave', () => (fx.active = false), { signal });
+
+			// Untrack to prevent this attachment from being run twice.
+			untrack(() => {
+				internalResizeHandler(fx);
+			});
+
+			const intervalIds = [
+				setInterval(() => {
+					internalUpdateHandler(fx);
+					updateFps();
+				}),
+
+				setInterval(() => {
+					fx.displayFrameTime = frameTime.toFixed(1);
+					fx.displayFps = (1000 / frameTime).toFixed(1);
+				}, 500)
+			];
+
+			return () => {
+				// Clean up
+				abortController.abort();
+				for (const intervalId of intervalIds) {
+					clearInterval(intervalId);
+				}
+			};
+		};
 	}
 
-	return (element) => {
-		const canvas = document.createElement('canvas');
-		element.appendChild(canvas);
-
-		const abortController = new AbortController();
-		const { signal } = abortController;
-
-		if (globalHandlers) {
-			for (const [eventName, makeHandler] of Object.entries(globalHandlers)) {
-				window.addEventListener(eventName, makeHandler(canvas), { signal });
-			}
-		}
-
-		window.addEventListener('resize', () => internalResizeHandler(canvas), { signal });
-		window.addEventListener('click', () => (fx.paused = !fx.paused), { signal });
-		window.addEventListener('keydown', (e) => internalKeydownHandler(canvas, e), { signal });
-
-		// Untrack to prevent this attachment from being run twice.
-		untrack(() => {
-			internalResizeHandler(canvas);
-		});
-
-		const intervalIds = [
-			setInterval(() => {
-				internalUpdateHandler(canvas);
-				updateFps();
-			}),
-
-			setInterval(() => {
-				fx.displayFrameTime = frameTime.toFixed(1);
-				fx.displayFps = (1000 / frameTime).toFixed(1);
-			}, 500)
-		];
-
-		return () => {
-			// Clean up
-			abortController.abort();
-			for (const intervalId of intervalIds) {
-				clearInterval(intervalId);
-			}
-		};
+	return {
+		fx,
+		fxHarness
 	};
 }
