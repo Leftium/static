@@ -30,13 +30,6 @@
 </main>
 
 <style>
-	:global(body, html) {
-		height: 100%;
-		margin: 0;
-		overflow: hidden;
-		background: #ccc;
-	}
-
 	main {
 		display: flex;
 		height: 100%;
