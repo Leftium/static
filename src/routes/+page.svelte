@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { fxHarness, fx } from './fx-harness.svelte';
+import { fx } from './fx-harness.svelte';
+	import GraphicalEffect from './GraphicalEffect.svelte';
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Generate one frame of noise
@@ -18,48 +19,4 @@
 	}
 </script>
 
-<main {@attach fxHarness({ updateHandler })}>
-	<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
-
-	<div class="info" hidden={fx.infoHidden}>
-		<div>{fx.displayFps} FPS</div>
-		<div>{fx.displayFrameTime}ms</div>
-		<div>{fx.dimensions}</div>
-		<div>{fx.paused}</div>
-	</div>
-</main>
-
-<style>
-	main {
-		display: flex;
-		height: 100%;
-		justify-content: center;
-		align-items: center;
-	}
-
-	/* CRT scanlines */
-	.crt-overlay {
-		position: fixed;
-		inset: 0;
-		background: repeating-linear-gradient(
-			to bottom,
-			transparent 0px,
-			transparent 2px,
-			rgba(0, 0, 0, 0.12) 2px,
-			rgba(0, 0, 0, 0.12) 4px
-		);
-		z-index: 10;
-		pointer-events: none;
-	}
-
-	.info {
-		position: fixed;
-		bottom: 24px;
-		left: 24px;
-		color: rgba(255, 255, 255, 0.8);
-		font-family: monospace;
-		font-size: clamp(12px, 2vw, 18px);
-		pointer-events: none;
-		z-index: 20;
-	}
-</style>
+<GraphicalEffect {updateHandler}></GraphicalEffect>
