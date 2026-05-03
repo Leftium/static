@@ -51,9 +51,12 @@
 
 	.info {
 		position: absolute;
-		bottom: 24px;
-		left: 24px;
+		bottom: 8px;
+		left: 8px;
+		padding: 8px;
+		border-radius: 8px;
 		color: rgba(255, 255, 255, 0.8);
+		background-color: rgba(0, 0, 0, 0.4);
 		font-family: monospace;
 		font-size: clamp(12px, 2vw, 18px);
 		pointer-events: none;
