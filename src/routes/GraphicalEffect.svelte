@@ -12,23 +12,27 @@
 		.map(([k, v]) => `${k}:${v}`)
 		.join(';')}
 >
-	<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
-
-	<div class="info" hidden={fx.infoHidden}>
-		<div>{fx.displayFps} FPS</div>
-		<div>{fx.displayFrameTime}ms</div>
-		<div>{fx.dimensions}</div>
-		<div>{fx.paused} {fx.active}</div>
+	<div>
+		<canvas bind:this={fx.canvas}></canvas>
+		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
+		<div class="info" hidden={fx.infoHidden}>
+			<div>{fx.displayFps} FPS</div>
+			<div>{fx.displayFrameTime}ms</div>
+			<div>{fx.dimensions}</div>
+			<div>{fx.paused} {fx.active}</div>
+		</div>
 	</div>
 </graphical-effect>
 
 <style>
-	graphical-effect {
+	graphical-effect,
+	graphical-effect > div {
 		position: relative;
 		display: flex;
-		height: 100%;
 		justify-content: center;
 		align-items: center;
+		width: 100%;
+		height: 100%;
 	}
 
 	/* CRT scanlines */

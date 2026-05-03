@@ -72,7 +72,7 @@ export function makeFxHarness() {
 					// Check if we're in fullscreen mode
 					if (document.fullscreenElement) {
 						document.exitFullscreen();
-						//internalResizeHandler(fx);
+						internalResizeHandler(fx);
 						return;
 					}
 					// Otherwise enter fullscreen mode
@@ -104,13 +104,28 @@ export function makeFxHarness() {
 				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
 				const factor = 0.5; // Canvas size relative to window.
 
-				const canvasWidth = fx.standardSize ? 800 : element.clientWidth;
-				const canvasHeight = fx.standardSize ? 500 : element.clientHeight;
+				const canvasWidth = fx.standardSize
+					? 800
+					: document.fullscreenElement
+						? window.innerWidth
+						: element.clientWidth;
+				const canvasHeight = fx.standardSize
+					? 500
+					: document.fullscreenElement
+						? window.innerHeight
+						: element.clientHeight;
 
 				fx.canvas.width = (factor * canvasWidth) / crtPixelAspectRatio;
 				fx.canvas.height = factor * canvasHeight;
 				fx.canvas.style.width = `${canvasWidth}px`;
 				fx.canvas.style.height = `${canvasHeight}px`;
+
+				const container = fx.canvas.parentElement;
+				if (container) {
+					container.style.width = `${canvasWidth}px`;
+					container.style.height = `${canvasHeight}px`;
+				}
+
 				fx.dimensions = `${canvasWidth}x${canvasHeight} (${fx.canvas.width}x${fx.canvas.height})`;
 
 				/*
@@ -142,11 +157,6 @@ export function makeFxHarness() {
 					ctx.putImageData(fx.imageData, 0, 0);
 				}
 			}
-
-			untrack(() => {
-				fx.canvas = document.createElement('canvas');
-				element.appendChild(fx.canvas);
-			});
 
 			const abortController = new AbortController();
 			const { signal } = abortController;
@@ -182,8 +192,13 @@ export function makeFxHarness() {
 
 			const intervalIds = [
 				setInterval(() => {
-					internalUpdateHandler(fx);
-					updateFps();
+					if (
+						!document.fullscreenElement ||
+						document.fullscreenElement == fx.canvas.parentElement
+					) {
+						internalUpdateHandler(fx);
+						updateFps();
+					}
 				}),
 
 				setInterval(() => {

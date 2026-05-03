@@ -27,11 +27,15 @@
 
 <main>
 	<GraphicalEffect
-		updateHandler={(fx: FxState) => generateNoise(fx.imageData)}
+		updateHandler={(fx: FxState) => {
+			generateNoise(fx.imageData);
+		}}
 		style={{ width: '30%', height: '50%' }}
 	></GraphicalEffect>
 	<GraphicalEffect
-		updateHandler={(fx: FxState) => generateNoise2(fx.imageData)}
+		updateHandler={(fx: FxState) => {
+			generateNoise2(fx.imageData);
+		}}
 		style={{ width: '50%', height: '30%' }}
 	></GraphicalEffect>
 </main>
