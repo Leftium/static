@@ -1,9 +1,15 @@
 <script lang="ts">
-	import { makeFxHarness } from './fx-harness.svelte';
+	import { makeFxHarness, type FxState } from './fx-harness.svelte';
 
 	const { fx, fxHarness } = makeFxHarness();
 
-	const { init, updateHandler, style } = $props();
+	interface Props {
+		init?: (fx: FxState) => void;
+		updateHandler: (fx: FxState) => void;
+		style: object;
+	}
+
+	const { init, updateHandler, style }: Props = $props();
 </script>
 
 <graphical-effect
@@ -16,9 +22,8 @@
 		<canvas bind:this={fx.canvas}></canvas>
 		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
 		<div class="info" hidden={fx.infoHidden}>
-			<div>{fx.displayFps} FPS ({fx.displayFpsPercentage}%)</div>
-			<div>{fx.displayFrameTime}ms</div>
-			<div>{fx.dimensions}</div>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+			<div>{@html fx.infoString.substring(1).replaceAll('\n', '<br>')}</div>
 		</div>
 	</div>
 </graphical-effect>

@@ -34,7 +34,7 @@
 	></GraphicalEffect>
 	<GraphicalEffect
 		init={(fx: FxState) => {
-			fx.factor = 1
+			fx.factor = 1;
 		}}
 		updateHandler={(fx: FxState) => {
 			generateNoise2(fx.imageData);

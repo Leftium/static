@@ -10,11 +10,9 @@ export type FxState = {
 
 	factor: number;
 
-	displayFrameTime: string;
-	displayFps: string;
-	displayFpsPercentage: string;
-
 	dimensions: string;
+	infoString: string;
+
 	imageData: ImageData;
 	canvas: HTMLCanvasElement;
 };
@@ -53,17 +51,15 @@ export function makeFxHarness() {
 
 		factor: 1 / 2,
 
-		displayFrameTime: 'N',
-		displayFps: 'N',
-		displayFpsPercentage: 'N',
 		dimensions: 'WxH (WxH)',
+		infoString: 'info',
 
 		imageData: null as unknown as ImageData,
 		canvas: null as unknown as HTMLCanvasElement
 	});
 
 	function fxHarness({
-        init,
+		init,
 		updateHandler,
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		resizeHandler,
@@ -224,9 +220,12 @@ export function makeFxHarness() {
 
 				setInterval(() => {
 					const fps = 1000 / frameTime;
-					fx.displayFrameTime = frameTime.toFixed(1);
-					fx.displayFps = fps.toFixed(0);
-					fx.displayFpsPercentage = ((fps * 100) / 250).toFixed(0);
+					const fpsPercentage = (fps * 100) / 250;
+
+					fx.infoString = `
+						${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
+						${frameTime.toFixed(1)}ms
+						${fx.dimensions}`;
 				}, 500)
 			];
 
