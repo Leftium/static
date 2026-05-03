@@ -207,7 +207,9 @@ export function makeFxHarness() {
 						!document.fullscreenElement ||
 						document.fullscreenElement == fx.canvas.parentElement
 					) {
-						internalUpdateHandler(fx);
+						if (!fx.paused) {
+							internalUpdateHandler(fx);
+						}
 						updateFps();
 					}
 				}),
