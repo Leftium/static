@@ -72,7 +72,7 @@ export function makeFxHarness() {
 		}
 
 		return (element) => {
-			console.log('attaching');
+			//console.log('attaching');
 			function internalKeydownHandler(fx: FxState, event: KeyboardEvent) {
 				if (event.key === 'Enter') {
 					// Check if we're in fullscreen mode
@@ -103,7 +103,6 @@ export function makeFxHarness() {
 					fx.crtScanlines = !fx.crtScanlines;
 				}
 
-				console.log(event.key);
 				if (event.key === ' ') {
 					fx.paused = !fx.paused;
 				}
