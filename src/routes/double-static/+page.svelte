@@ -12,7 +12,7 @@
 			console.log('resizeHandler', { width, height });
 			imageData[0] = createOpaqueImageData(width, height);
 		}}
-		onupdate={() => (imageData[0] = generateNoise(imageData[0]))}
+		onupdate={() => (imageData[0] = generateNoise(imageData[0], true))}
 		onrender={() => imageData[0]}
 		style="width: 30%; height: 50%"
 	></GraphicalEffect>
