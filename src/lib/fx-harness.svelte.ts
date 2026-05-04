@@ -9,6 +9,7 @@ export type FxState = {
 	active: boolean;
 
 	factor: number;
+	pixelAspectRatio: number;
 
 	dimensions: string;
 	infoString: string;
@@ -57,7 +58,8 @@ export function makeFxHarness() {
 		crtScanlines: true,
 		active: false,
 
-		factor: 1 / 2,
+		factor: 1,
+		pixelAspectRatio: 1,
 
 		dimensions: 'WxH (WxH)',
 		infoString: 'info'
@@ -120,9 +122,6 @@ export function makeFxHarness() {
 
 			// Resize canvas as needed.
 			function internalResizeHandler(fx: FxState) {
-				// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
-				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
-
 				const canvasWidth = fx.standardSize
 					? 800
 					: document.fullscreenElement
@@ -134,7 +133,7 @@ export function makeFxHarness() {
 						? window.innerHeight
 						: element.clientHeight;
 
-				canvas.width = (fx.factor * canvasWidth) / crtPixelAspectRatio;
+				canvas.width = (fx.factor * canvasWidth) / fx.pixelAspectRatio;
 				canvas.height = fx.factor * canvasHeight;
 				canvas.style.width = `${canvasWidth}px`;
 				canvas.style.height = `${canvasHeight}px`;
