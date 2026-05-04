@@ -8,14 +8,15 @@
 
 <main>
 	<GraphicalEffect
-		init={(fx: FxState) => {
+		oninit={(fx: FxState) => {
 			fx.factor = 1;
 		}}
-		resizeHandler={(_fx, width, height) => {
+		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => generateNoise(imageData)}
+		onupdate={() => generateNoise(imageData)}
+		onrender={() => imageData}
 	></GraphicalEffect>
 </main>
 

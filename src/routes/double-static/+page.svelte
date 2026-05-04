@@ -8,24 +8,26 @@
 
 <main>
 	<GraphicalEffect
-		resizeHandler={(_fx, width, height) => {
+		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData[0] = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => generateNoise(imageData[0], true)}
+		onupdate={() => (imageData[0] = generateNoise(imageData[0]))}
+		onrender={() => imageData[0]}
 		style="width: 30%; height: 50%"
 	></GraphicalEffect>
 
 	<GraphicalEffect
-		init={(fx: FxState) => {
+		oninit={(fx: FxState) => {
 			//console.log('init', $state.snapshot(fx));
 			fx.factor = 1;
 		}}
-		resizeHandler={(_fx, width, height) => {
+		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData[1] = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => generateNoise(imageData[1])}
+		onupdate={() => (imageData[1] = generateNoise(imageData[1]))}
+		onrender={() => imageData[1]}
 		style="width: 50%; height: 30%"
 	></GraphicalEffect>
 </main>

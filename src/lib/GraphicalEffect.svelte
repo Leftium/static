@@ -4,21 +4,26 @@
 	const { fx, fxHarness } = makeFxHarness();
 
 	interface Props {
-		init?: (fx: FxState) => void;
-		updateHandler: (fx: FxState) => ImageData;
-		resizeHandler?: (fx: FxState, width: number, height: number) => void;
+		oninit?: (fx: FxState) => void;
+		onupdate?: (fx: FxState) => void;
+		onresize?: (fx: FxState, width: number, height: number) => void;
+		onrender: (fx: FxState) => ImageData;
 		style?: string;
 	}
 
 	const {
-		init,
-		updateHandler,
-		resizeHandler,
+		oninit: initHandler,
+		onupdate: updateHandler,
+		onrender: renderHandler,
+		onresize: resizeHandler,
 		style = 'width: 100%; height: 100%'
 	}: Props = $props();
 </script>
 
-<graphical-effect {@attach fxHarness({ init, updateHandler, resizeHandler })} {style}>
+<graphical-effect
+	{@attach fxHarness({ initHandler, updateHandler, renderHandler, resizeHandler })}
+	{style}
+>
 	<div>
 		<canvas bind:this={fx.canvas}></canvas>
 		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>

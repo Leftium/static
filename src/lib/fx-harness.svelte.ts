@@ -17,8 +17,9 @@ export type FxState = {
 };
 
 type FxHarnessOptions = {
-	init?: (fx: FxState) => void;
-	updateHandler: (fx: FxState) => ImageData;
+	initHandler?: (fx: FxState) => void;
+	updateHandler?: (fx: FxState) => void;
+	renderHandler: (fx: FxState) => ImageData;
 	resizeHandler?: (fx: FxState, width: number, height: number) => void;
 	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
 };
@@ -67,18 +68,12 @@ export function makeFxHarness() {
 	});
 
 	function fxHarness({
-		init,
+		initHandler,
 		updateHandler,
+		renderHandler,
 		resizeHandler,
 		globalHandlers
 	}: FxHarnessOptions): Attachment {
-		function internalUpdateHandler(fx: FxState) {
-			const ctx = fx.canvas.getContext('2d');
-			if (ctx && !fx.paused) {
-				ctx.putImageData(updateHandler(fx), 0, 0);
-			}
-		}
-
 		return (element) => {
 			//console.log('attaching');
 			function internalKeydownHandler(fx: FxState, event: KeyboardEvent) {
@@ -155,8 +150,21 @@ export function makeFxHarness() {
 				if (resizeHandler) {
 					resizeHandler(fx, fx.canvas.width, fx.canvas.height);
 				}
-
 				internalUpdateHandler(fx);
+				internalRenderHandler(fx);
+			}
+
+			function internalUpdateHandler(fx: FxState) {
+				if (updateHandler) {
+					updateHandler(fx);
+				}
+			}
+
+			function internalRenderHandler(fx: FxState) {
+				const context = fx.canvas.getContext('2d');
+				if (context) {
+					context.putImageData(renderHandler(fx), 0, 0);
+				}
 			}
 
 			const abortController = new AbortController();
@@ -188,8 +196,8 @@ export function makeFxHarness() {
 
 			// Untrack to prevent this attachment from being run twice.
 			untrack(() => {
-				if (init) {
-					init(fx);
+				if (initHandler) {
+					initHandler(fx);
 				}
 				internalResizeHandler(fx);
 			});
@@ -202,6 +210,7 @@ export function makeFxHarness() {
 					) {
 						if (!fx.paused) {
 							internalUpdateHandler(fx);
+							internalRenderHandler(fx);
 						}
 						updateFps();
 					}
@@ -212,9 +221,9 @@ export function makeFxHarness() {
 					const fpsPercentage = (fps * 100) / 250;
 
 					fx.infoString = `
-						${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
-						${frameTime.toFixed(1)}ms
-						${fx.dimensions}`;
+								${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
+								${frameTime.toFixed(1)}ms
+								${fx.dimensions}`;
 				}, 500)
 			];
 
