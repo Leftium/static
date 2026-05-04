@@ -4,7 +4,7 @@
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
 	let imageData: ImageData;
-	let noise = new Uint8Array(0)
+	let noise = new Uint8Array(0);
 </script>
 
 <main>
@@ -18,7 +18,7 @@
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
-			noise = new Uint8Array(width * height)
+			noise = new Uint8Array(width * height);
 		}}
 		onupdate={() => generateNoise(noise)}
 		onrender={() => renderNoise(noise, imageData)}
