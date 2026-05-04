@@ -78,18 +78,18 @@ export function makeFxHarness() {
 			container.appendChild(canvas);
 
 			const context = canvas.getContext('2d');
-			function internalRenderHandler(fx: FxState) {
+			function internalRender(fx: FxState) {
 				if (context) {
 					context.putImageData(renderHandler(fx), 0, 0);
 				}
 			}
 
-			function internalKeydownHandler(fx: FxState, event: KeyboardEvent) {
+			function internalKeydown(fx: FxState, event: KeyboardEvent) {
 				if (event.key === 'Enter') {
 					// Check if we're in fullscreen mode
 					if (document.fullscreenElement) {
 						document.exitFullscreen();
-						internalResizeHandler(fx);
+						internalResize(fx);
 					} else if (fx.active) {
 						// Otherwise enter fullscreen mode
 						container.requestFullscreen().catch((err) => {
@@ -106,7 +106,7 @@ export function makeFxHarness() {
 
 				if (event.key === 's') {
 					fx.standardSize = !fx.standardSize;
-					internalResizeHandler(fx);
+					internalResize(fx);
 				}
 
 				if (event.key === 'c') {
@@ -118,8 +118,14 @@ export function makeFxHarness() {
 				}
 			}
 
+			function internalClick(fx: FxState) {
+				if (fx.active) {
+					fx.paused = !fx.paused;
+				}
+			}
+
 			// Resize canvas as needed.
-			function internalResizeHandler(fx: FxState) {
+			function internalResize(fx: FxState) {
 				const canvasWidth = fx.standardSize
 					? 800
 					: document.fullscreenElement
@@ -151,11 +157,11 @@ export function makeFxHarness() {
 				if (resizeHandler) {
 					resizeHandler(fx, canvas.width, canvas.height);
 				}
-				internalUpdateHandler(fx);
-				internalRenderHandler(fx);
+				internalUpdate(fx);
+				internalRender(fx);
 			}
 
-			function internalUpdateHandler(fx: FxState) {
+			function internalUpdate(fx: FxState) {
 				if (updateHandler) {
 					updateHandler(fx);
 				}
@@ -166,7 +172,7 @@ export function makeFxHarness() {
 				if (initHandler) {
 					initHandler(fx);
 				}
-				internalResizeHandler(fx);
+				internalResize(fx);
 			});
 
 			function renderInfo() {
@@ -184,8 +190,8 @@ export function makeFxHarness() {
 				setInterval(() => {
 					if (!document.fullscreenElement || document.fullscreenElement == container) {
 						if (!fx.paused) {
-							internalUpdateHandler(fx);
-							internalRenderHandler(fx);
+							internalUpdate(fx);
+							internalRender(fx);
 						}
 						updateFps();
 					}
@@ -197,20 +203,10 @@ export function makeFxHarness() {
 			const abortController = new AbortController();
 			const { signal } = abortController;
 
-			window.addEventListener('keydown', (e) => internalKeydownHandler(fx, e), {
-				signal
-			});
-			window.addEventListener('resize', () => internalResizeHandler(fx), { signal });
-			element.addEventListener('resize', () => internalResizeHandler(fx), { signal });
-			element.addEventListener(
-				'click',
-				() => {
-					if (fx.active) {
-						fx.paused = !fx.paused;
-					}
-				},
-				{ signal }
-			);
+			window.addEventListener('keydown', (e) => internalKeydown(fx, e), { signal });
+			window.addEventListener('resize', () => internalResize(fx), { signal });
+			element.addEventListener('resize', () => internalResize(fx), { signal });
+			element.addEventListener('click', () => internalClick(fx), { signal });
 
 			element.addEventListener('mouseenter', () => (fx.active = true), { signal });
 			element.addEventListener('mouseleave', () => (fx.active = false), { signal });
