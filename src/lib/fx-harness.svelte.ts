@@ -20,7 +20,6 @@ type FxHarnessOptions = {
 	updateHandler?: (fx: FxState) => void;
 	renderHandler: (fx: FxState) => ImageData;
 	resizeHandler?: (fx: FxState, width: number, height: number) => void;
-	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
 };
 
 export function createOpaqueImageData(width: number, height: number) {
@@ -69,8 +68,7 @@ export function makeFxHarness() {
 		initHandler,
 		updateHandler,
 		renderHandler,
-		resizeHandler,
-		globalHandlers
+		resizeHandler
 	}: FxHarnessOptions): Attachment {
 		return (element) => {
 			console.log('attaching');
@@ -198,12 +196,6 @@ export function makeFxHarness() {
 
 			const abortController = new AbortController();
 			const { signal } = abortController;
-
-			if (globalHandlers) {
-				for (const [eventName, makeHandler] of Object.entries(globalHandlers)) {
-					window.addEventListener(eventName, makeHandler(canvas), { signal });
-				}
-			}
 
 			window.addEventListener('keydown', (e) => internalKeydownHandler(fx, e), {
 				signal
