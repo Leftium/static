@@ -157,11 +157,6 @@ export function makeFxHarness() {
 				}
 
 				internalUpdateHandler(fx);
-
-				const ctx = fx.canvas.getContext('2d');
-				if (ctx && !fx.paused) {
-					ctx.putImageData(updateHandler(fx), 0, 0);
-				}
 			}
 
 			const abortController = new AbortController();
