@@ -11,13 +11,11 @@
 		init={(fx: FxState) => {
 			fx.factor = 1;
 		}}
-		resizeHandler={(fx: FxState, width: number, height: number) => {
+		resizeHandler={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => {
-			return generateNoise(imageData);
-		}}
+		updateHandler={() => generateNoise(imageData)}
 	></GraphicalEffect>
 </main>
 

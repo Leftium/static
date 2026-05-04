@@ -8,13 +8,11 @@
 
 <main>
 	<GraphicalEffect
-		resizeHandler={(fx: FxState, width: number, height: number) => {
+		resizeHandler={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData[0] = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => {
-			return generateNoise(imageData[0], true);
-		}}
+		updateHandler={() => generateNoise(imageData[0], true)}
 		style="width: 30%; height: 50%"
 	></GraphicalEffect>
 
@@ -23,13 +21,11 @@
 			//console.log('init', $state.snapshot(fx));
 			fx.factor = 1;
 		}}
-		resizeHandler={(fx: FxState, width: number, height: number) => {
+		resizeHandler={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData[1] = createOpaqueImageData(width, height);
 		}}
-		updateHandler={() => {
-			return generateNoise(imageData[1]);
-		}}
+		updateHandler={() => generateNoise(imageData[1])}
 		style="width: 50%; height: 30%"
 	></GraphicalEffect>
 </main>
