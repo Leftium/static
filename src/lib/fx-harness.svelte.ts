@@ -90,13 +90,12 @@ export function makeFxHarness() {
 					if (document.fullscreenElement) {
 						document.exitFullscreen();
 						internalResizeHandler(fx);
-						return;
+					} else if (fx.active) {
+						// Otherwise enter fullscreen mode
+						container.requestFullscreen().catch((err) => {
+							console.error(`Error enabling fullscreen: ${err.message}`);
+						});
 					}
-					// Otherwise enter fullscreen mode
-					if (!fx.active || !canvas.parentElement) return;
-					canvas.parentElement.requestFullscreen().catch((err) => {
-						console.error(`Error enabling fullscreen: ${err.message}`);
-					});
 				}
 
 				if (!fx.active) return;
@@ -186,7 +185,7 @@ export function makeFxHarness() {
 
 			const intervalIds = [
 				setInterval(() => {
-					if (!document.fullscreenElement || document.fullscreenElement == canvas.parentElement) {
+					if (!document.fullscreenElement || document.fullscreenElement == container) {
 						if (!fx.paused) {
 							internalUpdateHandler(fx);
 							internalRenderHandler(fx);
