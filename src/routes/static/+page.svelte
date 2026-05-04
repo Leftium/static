@@ -3,9 +3,6 @@
 	import { generateNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
-	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
-	// Generate one frame of noise
-
 	let noise = new Uint8Array(0);
 	let imageData = null as unknown as ImageData;
 </script>
