@@ -3,7 +3,7 @@
 	import { generateNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
-	let imageData = null as unknown as ImageData;
+	let imageData: ImageData;
 </script>
 
 <main>
