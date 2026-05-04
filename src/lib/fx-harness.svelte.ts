@@ -5,10 +5,10 @@ export type FxState = {
 	paused: boolean;
 	infoHidden: boolean;
 	standardSize: boolean;
-	crtScanlines: boolean;
 	active: boolean;
+	crtScanlines: boolean;
 
-	factor: number;
+	scalingFactor: number;
 	pixelAspectRatio: number;
 
 	dimensions: string;
@@ -54,10 +54,10 @@ export function makeFxHarness() {
 		paused: false,
 		infoHidden: false,
 		standardSize: false,
-		crtScanlines: true,
 		active: false,
+		crtScanlines: true,
 
-		factor: 1,
+		scalingFactor: 1,
 		pixelAspectRatio: 1,
 
 		dimensions: 'WxH (WxH)',
@@ -137,8 +137,8 @@ export function makeFxHarness() {
 						? window.innerHeight
 						: element.clientHeight;
 
-				canvas.width = (fx.factor * canvasWidth) / fx.pixelAspectRatio;
-				canvas.height = fx.factor * canvasHeight;
+				canvas.width = (fx.scalingFactor * canvasWidth) / fx.pixelAspectRatio;
+				canvas.height = fx.scalingFactor * canvasHeight;
 				canvas.style.width = `${canvasWidth}px`;
 				canvas.style.height = `${canvasHeight}px`;
 
@@ -205,7 +205,7 @@ export function makeFxHarness() {
 
 			window.addEventListener('keydown', (e) => internalKeydown(fx, e), { signal });
 			window.addEventListener('resize', () => internalResize(fx), { signal });
-            
+
 			element.addEventListener('resize', () => internalResize(fx), { signal });
 			element.addEventListener('click', () => internalClick(fx), { signal });
 
