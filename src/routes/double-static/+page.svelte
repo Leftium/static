@@ -30,7 +30,7 @@
 		updateHandler={(fx: FxState) => {
 			generateNoise(fx.imageData);
 		}}
-		style={{ width: '30%', height: '50%' }}
+		style="width: 30%; height: 50%"
 	></GraphicalEffect>
 	<GraphicalEffect
 		init={(fx: FxState) => {
@@ -40,7 +40,7 @@
 		updateHandler={(fx: FxState) => {
 			generateNoise2(fx.imageData);
 		}}
-		style={{ width: '50%', height: '30%' }}
+		style="width: 50%; height: 30%"
 	></GraphicalEffect>
 </main>
 
