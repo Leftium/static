@@ -7,4 +7,6 @@
 	<li><a href={resolve('/double-static')}>double static</a></li>
 </ul>
 
-Static effect based on: <a href="https://codepen.io/matthewhudson/pen/KOPxNv">https://codepen.io/matthewhudson/pen/KOPxNv</a>
+Static effect based on:<a href="https://codepen.io/matthewhudson/pen/KOPxNv"
+	>https://codepen.io/matthewhudson/pen/KOPxNv</a
+>

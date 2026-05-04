@@ -1,7 +1,8 @@
-export function generateNoise(imageData: ImageData, length: number, skipRed = false) {
+export function generateNoise(imageData: ImageData, skipRed = false) {
 	const data = imageData.data;
+	const len = data.length / 4;
 	let j = 0;
-	for (let i = 0; i < length; i++) {
+	for (let i = 0; i < len; i++) {
 		const value = Math.random() * 255;
 		//noise[i] = value;
 
