@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type FxState } from '$lib/fx-harness.svelte';
+	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import { generateNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
@@ -15,20 +15,10 @@
 		init={(fx: FxState) => {
 			fx.factor = 1;
 		}}
-		resizeHandler={(fx: FxState) => {
-			const width = fx.canvas.width;
-			const height = fx.canvas.height;
-
+		resizeHandler={(fx: FxState, width: number, height: number) => {
 			console.log('resizeHandler', { width, height });
-
 			noise = new Uint8Array(width * height);
-			imageData = new ImageData(width, height);
-			const data = imageData.data;
-
-			let j = 0;
-			for (let i = 0; i < noise.length; i++) {
-				data[(j += 4) + 3] = 255; // A
-			}
+			imageData = createOpaqueImageData(width, height);
 		}}
 		updateHandler={() => {
 			return generateNoise(imageData, noise.length);

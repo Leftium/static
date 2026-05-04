@@ -19,9 +19,19 @@ export type FxState = {
 type FxHarnessOptions = {
 	init?: (fx: FxState) => void;
 	updateHandler: (fx: FxState) => ImageData;
-	resizeHandler?: (fx: FxState) => void;
+	resizeHandler?: (fx: FxState, width: number, height: number) => void;
 	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
 };
+
+export function createOpaqueImageData(width: number, height: number) {
+	const imageData = new ImageData(width, height);
+	const data = imageData.data;
+
+	for (let i = 3; i < data.length; i += 4) {
+		data[i] = 255; // A
+	}
+	return imageData;
+}
 
 export function makeFxHarness() {
 	// Frame counter based on: https://stackoverflow.com/a/5111475
@@ -143,7 +153,7 @@ export function makeFxHarness() {
 				*/
 
 				if (resizeHandler) {
-					resizeHandler(fx);
+					resizeHandler(fx, fx.canvas.width, fx.canvas.height);
 				}
 
 				internalUpdateHandler(fx);
