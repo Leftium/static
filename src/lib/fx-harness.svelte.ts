@@ -13,14 +13,13 @@ export type FxState = {
 	dimensions: string;
 	infoString: string;
 
-	imageData: ImageData;
 	canvas: HTMLCanvasElement;
 };
 
 type FxHarnessOptions = {
 	init?: (fx: FxState) => void;
-	updateHandler: (fx: FxState) => void;
-	resizeHandler?: (canvas: HTMLCanvasElement) => void;
+	updateHandler: (fx: FxState) => ImageData;
+	resizeHandler?: (fx: FxState) => void;
 	globalHandlers?: Record<string, (canvas: HTMLCanvasElement) => EventListener>;
 };
 
@@ -54,22 +53,19 @@ export function makeFxHarness() {
 		dimensions: 'WxH (WxH)',
 		infoString: 'info',
 
-		imageData: null as unknown as ImageData,
 		canvas: null as unknown as HTMLCanvasElement
 	});
 
 	function fxHarness({
 		init,
 		updateHandler,
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		resizeHandler,
 		globalHandlers
 	}: FxHarnessOptions): Attachment {
 		function internalUpdateHandler(fx: FxState) {
-			updateHandler(fx);
 			const ctx = fx.canvas.getContext('2d');
-			if (ctx && fx.imageData && !fx.paused) {
-				ctx.putImageData(fx.imageData, 0, 0);
+			if (ctx && !fx.paused) {
+				ctx.putImageData(updateHandler(fx), 0, 0);
 			}
 		}
 
@@ -146,26 +142,15 @@ export function makeFxHarness() {
 				);
 				*/
 
-				const ctx = fx.canvas.getContext('2d');
-
-				if (
-					ctx &&
-					(!fx.imageData ||
-						fx.imageData.width !== fx.canvas.width ||
-						fx.imageData.height !== fx.canvas.height)
-				) {
-					fx.imageData = ctx?.createImageData(fx.canvas.width, fx.canvas.height);
-					const data = fx.imageData.data;
-					const len = data.length;
-
-					for (let i = 0; i < len; i += 4) {
-						data[i + 3] = 255;
-					}
+				if (resizeHandler) {
+					resizeHandler(fx);
 				}
+
 				internalUpdateHandler(fx);
 
-				if (ctx && fx.imageData) {
-					ctx.putImageData(fx.imageData, 0, 0);
+				const ctx = fx.canvas.getContext('2d');
+				if (ctx && !fx.paused) {
+					ctx.putImageData(updateHandler(fx), 0, 0);
 				}
 			}
 

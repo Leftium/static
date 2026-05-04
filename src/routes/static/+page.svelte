@@ -1,24 +1,37 @@
 <script lang="ts">
-	import type { FxState } from '$lib/fx-harness.svelte';
+	import { type FxState } from '$lib/fx-harness.svelte';
+	import { generateNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
 	// Static effect based on: https://codepen.io/matthewhudson/pen/KOPxNv
 	// Generate one frame of noise
-	function generateNoise(imageData: ImageData) {
-		const data = imageData.data;
-		const len = data.length;
-		for (let i = 0; i < len; i += 4) {
-			const v = Math.random() * 255;
-			data[i] = data[i + 1] = data[i + 2] = v;
-		}
-		return imageData;
-	}
+
+	let noise = new Uint8Array(0);
+	let imageData = null as unknown as ImageData;
 </script>
 
 <main>
 	<GraphicalEffect
-		updateHandler={(fx: FxState) => {
-			generateNoise(fx.imageData);
+		init={(fx: FxState) => {
+			fx.factor = 1;
+		}}
+		resizeHandler={(fx: FxState) => {
+			const width = fx.canvas.width;
+			const height = fx.canvas.height;
+
+			console.log('resizeHandler', { width, height });
+
+			noise = new Uint8Array(width * height);
+			imageData = new ImageData(width, height);
+			const data = imageData.data;
+
+			let j = 0;
+			for (let i = 0; i < noise.length; i++) {
+				data[(j += 4) + 3] = 255; // A
+			}
+		}}
+		updateHandler={() => {
+			return generateNoise(imageData, noise.length);
 		}}
 	></GraphicalEffect>
 </main>

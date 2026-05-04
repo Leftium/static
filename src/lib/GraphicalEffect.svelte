@@ -3,10 +3,15 @@
 
 	const { fx, fxHarness } = makeFxHarness();
 
-	const { init = null, updateHandler, style = 'width: 100%; height: 100%' } = $props();
+	const {
+		init = null,
+		updateHandler,
+		resizeHandler = null,
+		style = 'width: 100%; height: 100%'
+	} = $props();
 </script>
 
-<graphical-effect {@attach fxHarness({ init, updateHandler })} {style}>
+<graphical-effect {@attach fxHarness({ init, updateHandler, resizeHandler })} {style}>
 	<div>
 		<canvas bind:this={fx.canvas}></canvas>
 		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
