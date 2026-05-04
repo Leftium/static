@@ -196,12 +196,11 @@ export function makeFxHarness() {
 			element.addEventListener('mouseenter', () => (fx.active = true), { signal });
 			element.addEventListener('mouseleave', () => (fx.active = false), { signal });
 
-			if (init) {
-				init(fx);
-			}
-
 			// Untrack to prevent this attachment from being run twice.
 			untrack(() => {
+				if (init) {
+					init(fx);
+				}
 				internalResizeHandler(fx);
 			});
 

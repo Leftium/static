@@ -34,6 +34,7 @@
 	></GraphicalEffect>
 	<GraphicalEffect
 		init={(fx: FxState) => {
+			//console.log('init', $state.snapshot(fx));
 			fx.factor = 1;
 		}}
 		updateHandler={(fx: FxState) => {
