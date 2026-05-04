@@ -205,6 +205,7 @@ export function makeFxHarness() {
 
 			window.addEventListener('keydown', (e) => internalKeydown(fx, e), { signal });
 			window.addEventListener('resize', () => internalResize(fx), { signal });
+            
 			element.addEventListener('resize', () => internalResize(fx), { signal });
 			element.addEventListener('click', () => internalClick(fx), { signal });
 
