@@ -12,8 +12,6 @@ export type FxState = {
 
 	dimensions: string;
 	infoString: string;
-
-	canvas: HTMLCanvasElement;
 };
 
 type FxHarnessOptions = {
@@ -40,7 +38,7 @@ export function makeFxHarness() {
 	// A value of 1 will only keep the last value
 	const filterStrength = 10;
 
-	let frameTime = $state(0);
+	let frameTime = $state(2222);
 
 	let lastLoop = performance.now();
 	let thisLoop = lastLoop;
@@ -62,9 +60,7 @@ export function makeFxHarness() {
 		factor: 1 / 2,
 
 		dimensions: 'WxH (WxH)',
-		infoString: 'info',
-
-		canvas: null as unknown as HTMLCanvasElement
+		infoString: 'info'
 	});
 
 	function fxHarness({
@@ -75,7 +71,19 @@ export function makeFxHarness() {
 		globalHandlers
 	}: FxHarnessOptions): Attachment {
 		return (element) => {
-			//console.log('attaching');
+			console.log('attaching');
+
+			const canvas = document.createElement('canvas');
+			const container = element.getElementsByTagName('wrap-effect')[0] as HTMLElement;
+			container.appendChild(canvas);
+
+			const context = canvas.getContext('2d');
+			function internalRenderHandler(fx: FxState) {
+				if (context) {
+					context.putImageData(renderHandler(fx), 0, 0);
+				}
+			}
+
 			function internalKeydownHandler(fx: FxState, event: KeyboardEvent) {
 				if (event.key === 'Enter') {
 					// Check if we're in fullscreen mode
@@ -85,8 +93,8 @@ export function makeFxHarness() {
 						return;
 					}
 					// Otherwise enter fullscreen mode
-					if (!fx.active || !fx.canvas.parentElement) return;
-					fx.canvas.parentElement.requestFullscreen().catch((err) => {
+					if (!fx.active || !canvas.parentElement) return;
+					canvas.parentElement.requestFullscreen().catch((err) => {
 						console.error(`Error enabling fullscreen: ${err.message}`);
 					});
 				}
@@ -111,7 +119,7 @@ export function makeFxHarness() {
 				}
 			}
 
-			// Resize canvas to fill window
+			// Resize canvas as needed.
 			function internalResizeHandler(fx: FxState) {
 				// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 				const crtPixelAspectRatio = ((4 / 440) * 486) / 3;
@@ -127,18 +135,15 @@ export function makeFxHarness() {
 						? window.innerHeight
 						: element.clientHeight;
 
-				fx.canvas.width = (fx.factor * canvasWidth) / crtPixelAspectRatio;
-				fx.canvas.height = fx.factor * canvasHeight;
-				fx.canvas.style.width = `${canvasWidth}px`;
-				fx.canvas.style.height = `${canvasHeight}px`;
+				canvas.width = (fx.factor * canvasWidth) / crtPixelAspectRatio;
+				canvas.height = fx.factor * canvasHeight;
+				canvas.style.width = `${canvasWidth}px`;
+				canvas.style.height = `${canvasHeight}px`;
 
-				const container = fx.canvas.parentElement;
-				if (container) {
-					container.style.width = `${canvasWidth}px`;
-					container.style.height = `${canvasHeight}px`;
-				}
+				container.style.width = `${canvasWidth}px`;
+				container.style.height = `${canvasHeight}px`;
 
-				fx.dimensions = `${canvasWidth}x${canvasHeight} (${fx.canvas.width}x${fx.canvas.height})`;
+				fx.dimensions = `${canvasWidth}x${canvasHeight} (${canvas.width}x${canvas.height})`;
 
 				/*
 				console.log(
@@ -148,7 +153,7 @@ export function makeFxHarness() {
 				*/
 
 				if (resizeHandler) {
-					resizeHandler(fx, fx.canvas.width, fx.canvas.height);
+					resizeHandler(fx, canvas.width, canvas.height);
 				}
 				internalUpdateHandler(fx);
 				internalRenderHandler(fx);
@@ -160,19 +165,45 @@ export function makeFxHarness() {
 				}
 			}
 
-			function internalRenderHandler(fx: FxState) {
-				const context = fx.canvas.getContext('2d');
-				if (context) {
-					context.putImageData(renderHandler(fx), 0, 0);
+			// Untrack to prevent this attachment from being run twice.
+			untrack(() => {
+				if (initHandler) {
+					initHandler(fx);
 				}
+				internalResizeHandler(fx);
+			});
+
+			function renderInfo() {
+				const fps = 1000 / frameTime;
+				const fpsPercentage = (fps * 100) / 250;
+
+				fx.infoString = `
+					${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
+					${frameTime === 2222 ? '0' : frameTime.toFixed(1)}ms
+					${fx.dimensions}`;
 			}
+			setTimeout(renderInfo);
+
+			const intervalIds = [
+				setInterval(() => {
+					if (!document.fullscreenElement || document.fullscreenElement == canvas.parentElement) {
+						if (!fx.paused) {
+							internalUpdateHandler(fx);
+							internalRenderHandler(fx);
+						}
+						updateFps();
+					}
+				}),
+
+				setInterval(renderInfo, 500)
+			];
 
 			const abortController = new AbortController();
 			const { signal } = abortController;
 
 			if (globalHandlers) {
 				for (const [eventName, makeHandler] of Object.entries(globalHandlers)) {
-					window.addEventListener(eventName, makeHandler(fx.canvas), { signal });
+					window.addEventListener(eventName, makeHandler(canvas), { signal });
 				}
 			}
 
@@ -193,39 +224,6 @@ export function makeFxHarness() {
 
 			element.addEventListener('mouseenter', () => (fx.active = true), { signal });
 			element.addEventListener('mouseleave', () => (fx.active = false), { signal });
-
-			// Untrack to prevent this attachment from being run twice.
-			untrack(() => {
-				if (initHandler) {
-					initHandler(fx);
-				}
-				internalResizeHandler(fx);
-			});
-
-			const intervalIds = [
-				setInterval(() => {
-					if (
-						!document.fullscreenElement ||
-						document.fullscreenElement == fx.canvas.parentElement
-					) {
-						if (!fx.paused) {
-							internalUpdateHandler(fx);
-							internalRenderHandler(fx);
-						}
-						updateFps();
-					}
-				}),
-
-				setInterval(() => {
-					const fps = 1000 / frameTime;
-					const fpsPercentage = (fps * 100) / 250;
-
-					fx.infoString = `
-								${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
-								${frameTime.toFixed(1)}ms
-								${fx.dimensions}`;
-				}, 500)
-			];
 
 			return () => {
 				// Clean up

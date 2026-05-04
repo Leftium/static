@@ -24,19 +24,18 @@
 	{@attach fxHarness({ initHandler, updateHandler, renderHandler, resizeHandler })}
 	{style}
 >
-	<div>
-		<canvas bind:this={fx.canvas}></canvas>
+	<wrap-effect>
 		<div class="crt-overlay" hidden={!fx.crtScanlines}></div>
 		<div class="info" hidden={fx.infoHidden}>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-			<div>{@html fx.infoString.substring(1).replaceAll('\n', '<br>')}</div>
+			{@html fx.infoString.substring(1).replaceAll('\n', '<br>')}
 		</div>
-	</div>
+	</wrap-effect>
 </graphical-effect>
 
 <style>
 	graphical-effect,
-	graphical-effect > div {
+	graphical-effect > wrap-effect {
 		position: relative;
 		display: flex;
 		justify-content: center;
