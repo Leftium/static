@@ -163,7 +163,6 @@ export function makeFxHarness() {
 				if (resizeHandler) {
 					resizeHandler(fx, canvas.width, canvas.height);
 				}
-				internalUpdate(fx);
 				internalRender(fx);
 			}
 
