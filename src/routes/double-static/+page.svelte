@@ -2,6 +2,7 @@
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import { generateNoise, renderNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
+	import { paletteCyan } from '$lib/palette';
 
 	let imageData = [null, null] as unknown as [ImageData, ImageData];
 	let noise = [new Uint8Array(0), new Uint8Array(0)];
@@ -20,7 +21,7 @@
 			noise[0] = new Uint8Array(width * height);
 		}}
 		onupdate={() => generateNoise(noise[0])}
-		onrender={() => renderNoise(noise[0], imageData[0], true)}
+		onrender={() => renderNoise(noise[0], imageData[0], paletteCyan)}
 		style="width: 30%; height: 50%"
 	></GraphicalEffect>
 
