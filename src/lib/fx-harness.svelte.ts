@@ -4,9 +4,12 @@ import type { Attachment } from 'svelte/attachments';
 export type FxState = {
 	paused: boolean;
 	infoHidden: boolean;
-	standardSize: boolean;
 	active: boolean;
 	crtScanlines: boolean;
+
+	standardSize: boolean;
+	standardWidth: number;
+	standardHeight: number;
 
 	scalingFactor: number;
 	pixelAspectRatio: number;
@@ -53,9 +56,12 @@ export function makeFxHarness() {
 	const fx = $state<FxState>({
 		paused: false,
 		infoHidden: false,
-		standardSize: false,
 		active: false,
 		crtScanlines: true,
+
+		standardSize: false,
+		standardWidth: 800,
+		standardHeight: 500,
 
 		scalingFactor: 1,
 		pixelAspectRatio: 1,
@@ -127,12 +133,12 @@ export function makeFxHarness() {
 			// Resize canvas as needed.
 			function internalResize(fx: FxState) {
 				const canvasWidth = fx.standardSize
-					? 800
+					? fx.standardWidth
 					: document.fullscreenElement
 						? window.innerWidth
 						: element.clientWidth;
 				const canvasHeight = fx.standardSize
-					? 500
+					? fx.standardHeight
 					: document.fullscreenElement
 						? window.innerHeight
 						: element.clientHeight;
