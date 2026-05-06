@@ -1,4 +1,4 @@
-function makePalette(makeColor: (i: number) => number) {
+export function makePalette(makeColor: (i: number) => number) {
 	return new Uint32Array(256).map((_value, i) => makeColor(i));
 }
 
@@ -14,7 +14,6 @@ export const paletteCyan = makePalette((i) => {
 	const g = i,
 		b = i,
 		a = 255;
-	console.log({ i, g, b, a });
 	return (a << 24) | (b << 16) | (g << 8);
 });
 
