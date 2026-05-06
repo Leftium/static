@@ -125,7 +125,7 @@
 		let palette = new Uint32Array(256);
 		palette.fill(makeColor(r, g, b));
 
-		let i = 255;
+		let i = 128;
 		r = b = g = 255;
 
 		/*
@@ -158,12 +158,12 @@
 
 		r++;
 		while (g > 0) {
-			r -= 8;
-			g -= 4;
+			r -= 4;
+			g -= 2;
 
 			if (!extended) {
-				r -= 8;
-				g -= 4;
+				r -= 8 + 4;
+				g -= 4 + 2;
 			}
 
 			palette[i] = makeColor(r, g, b);
