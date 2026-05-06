@@ -294,7 +294,7 @@
 
 <!-- Define a snippet for rendering a palette -->
 {#snippet Palette(type: keyof typeof gradients, ref: SVGSVGElement[], index: number)}
-	<div style="display: flex; margin-bottom:2rem">
+	<div style="display: flex; margin-top:1rem">
 		<svg bind:this={ref[index]} xmlns="http://www.w3.org/2000/svg" width="256" height="120">
 			<defs>
 				<linearGradient id={type} x1="0%" y1="0%" x2="100%" y2="0%">
@@ -318,17 +318,12 @@
 {/snippet}
 
 <main>
-	<!-- Use the snippet for each palette -->
-	{#each order as type, i (i)}
-		{@render Palette(type as keyof typeof gradients, svgRefs, i)}
-	{/each}
-
 	<GraphicalEffect
 		style="justify-content: start;"
 		oninit={(fx: FxState) => {
 			fx.standardSize = true;
 			fx.standardWidth = 512;
-			fx.standardHeight = 512;
+			fx.standardHeight = 120;
 
 			fx.crtScanlines = false;
 			fx.scalingFactor = 1 / 2;
@@ -348,4 +343,9 @@
 		}}
 		onrender={() => renderNoise(grid, imageData, palette)}
 	></GraphicalEffect>
+
+	<!-- Use the snippet for each palette -->
+	{#each order as type, i (i)}
+		{@render Palette(type as keyof typeof gradients, svgRefs, i)}
+	{/each}
 </main>
