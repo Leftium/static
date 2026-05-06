@@ -2,6 +2,7 @@
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import { renderNoise } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
+	import { makeColor } from '$lib/palette';
 
 	let imageData: ImageData;
 	let grid = new Uint8Array(0);
