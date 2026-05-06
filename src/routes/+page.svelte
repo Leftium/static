@@ -6,6 +6,7 @@
 	<li><a href={resolve('/static')}>static</a></li>
 	<li><a href={resolve('/double-static')}>double static</a></li>
 	<li><a href={resolve('/gradient')}>gradient</a></li>
+	<li><a href={resolve('/fire-plasma')}>fire plasma</a></li>
 </ul>
 
 <ul>

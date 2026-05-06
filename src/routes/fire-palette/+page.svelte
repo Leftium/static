@@ -70,11 +70,6 @@
 
 	import { onMount } from 'svelte';
 
-	function makeColor(r: number, g: number, b: number, a = 255) {
-		// ABGR packing
-		return (a << 24) | (b << 16) | (g << 8) | r;
-	}
-
 	function makeFirePalette256() {
 		let r = 0,
 			g = 0,

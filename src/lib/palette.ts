@@ -1,5 +1,10 @@
-export function makePalette(makeColor: (i: number) => number) {
-	return new Uint32Array(256).map((_value, i) => makeColor(i));
+export function makeColor(r: number, g: number, b: number, a = 255) {
+	// ABGR packing
+	return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
+export function makePalette(calcColor: (i: number) => number) {
+	return new Uint32Array(256).map((_value, i) => calcColor(i));
 }
 
 export const paletteGray = makePalette((i) => {
