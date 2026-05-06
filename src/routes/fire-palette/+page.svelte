@@ -227,7 +227,7 @@
 		return palette;
 	}
 
-	let paletteFire = $state(makeFirePalette(true));
+	let paletteFire = $state(makeFirePalette(false));
 
 	function paletteStops(palette, positions = [0, 64, 128, 192, 255]) {
 		return positions.map((pos) => {
