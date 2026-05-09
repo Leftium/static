@@ -17,6 +17,6 @@ Static effect based on:<a href="https://codepen.io/matthewhudson/pen/KOPxNv"
 	>https://codepen.io/matthewhudson/pen/KOPxNv</a
 >
 
-<hr>
+<hr />
 
-<a href="https://github.com/Leftium/fx">https://github.com/Leftium/fx</a> 
+<a href="https://github.com/Leftium/fx">https://github.com/Leftium/fx</a>
