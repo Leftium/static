@@ -71,6 +71,7 @@
 
 	import { onMount } from 'svelte';
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	function makeFirePalette256() {
 		let r = 0,
 			g = 0,
@@ -173,6 +174,7 @@
 		return palette;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	function makeFirePalette256Soft() {
 		let r = 0,
 			g = 0,
@@ -229,7 +231,7 @@
 
 	let paletteFire = $state(makeFirePalette(false));
 
-	function paletteStops(palette, positions = [0, 64, 128, 192, 255]) {
+	function paletteStops(palette: Uint32Array, positions = [0, 64, 128, 192, 255]) {
 		return positions.map((pos) => {
 			const color = palette[pos];
 			const r = color & 0xff;
@@ -240,7 +242,7 @@
 		});
 	}
 
-	const rgbStops = paletteStops(makeFirePalette256);
+	const rgbStops = paletteStops(paletteFire);
 	console.log(rgbStops);
 
 	let palette = $state(paletteFire);
