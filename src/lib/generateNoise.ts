@@ -26,6 +26,14 @@ export function generateNoise(data: Uint32Array) {
 	return data;
 }
 
+export function generateNoiseUint8(data: Uint8Array) {
+	// Bulk fill in chunks of MAX_BYTES bytes
+	for (let i = 0; i < data.length; i += MAX_BYTES) {
+		crypto.getRandomValues(data.subarray(i, i + MAX_BYTES) as Uint8Array<ArrayBuffer>);
+	}
+	return data;
+}
+
 export function renderNoiseColor(noise: Uint32Array, imageData: ImageData) {
 	// reinterpret the buffer as 32‑bit words
 	const data32 = new Uint32Array(imageData.data.buffer);
