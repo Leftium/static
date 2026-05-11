@@ -4,7 +4,6 @@
 	import { makeColor, paletteGray } from '$lib/palette';
 
 	let imageData: ImageData;
-	let grid = new Uint8Array(0);
 
 	let heatPrev = new Uint8Array(0);
 	let heatNext = new Uint8Array(0);
@@ -138,21 +137,6 @@
 		//console.log(heatNext);
 	}
 
-	function generateNoise(data: Uint8Array) {
-		const width = imageData.width;
-		const height = imageData.height;
-
-		const size = 255;
-
-		for (let j = 0; j < height; j++) {
-			for (let i = 0; i < height; i++) {
-				const value = size - Math.min(Math.abs(i - j - size));
-				grid[i + j * width] = value;
-			}
-		}
-		return data;
-	}
-
 	export function renderFire(noise: Uint8Array, imageData: ImageData, palette = paletteGray) {
 		const data32 = new Uint32Array(imageData.data.buffer);
 		const paddedWidth = heatWidth + padSides * 2;
@@ -183,9 +167,6 @@
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
-			grid = new Uint8Array(width * height);
-
-			generateNoise(grid);
 
 			heatWidth = width;
 			heatHeight = height;
