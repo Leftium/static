@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
-	import { generateNoise, renderNoise } from '$lib/generateNoise';
+	import { generateNoise, renderNoiseGray } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 
 	let imageData: ImageData;
-	let noise = new Uint8Array(0);
+	let noise = new Uint32Array(0);
 </script>
 
 <main>
@@ -18,10 +18,10 @@
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
-			noise = new Uint8Array(width * height);
+			noise = new Uint32Array(width * height);
 		}}
 		onupdate={() => generateNoise(noise)}
-		onrender={() => renderNoise(noise, imageData)}
+		onrender={() => renderNoiseGray(noise, imageData)}
 	></GraphicalEffect>
 </main>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
-	import { renderNoise } from '$lib/generateNoise';
+	import { renderNoisePalette } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
 	import { paletteCyan, rotateLeft } from '$lib/palette';
 
@@ -45,7 +45,7 @@
 		onupdate={() => {
 			rotateLeft(paletteCyan);
 		}}
-		onrender={() => renderNoise(grid, imageData, paletteCyan)}
+		onrender={() => renderNoisePalette(grid, imageData, paletteCyan)}
 	></GraphicalEffect>
 </main>
 
