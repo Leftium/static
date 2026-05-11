@@ -53,7 +53,7 @@
 			generateNoiseUint8(randValues);
 
 			for (let i = 0; i < noiseNext.length; i++) {
-				if (randValues[i] < noiseMask[i]) {
+				if (randValues[i] <= noiseMask[i]) {
 					noiseNext[i] = noisePrev[i];
 				}
 			}
