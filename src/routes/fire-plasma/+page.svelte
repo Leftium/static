@@ -5,10 +5,10 @@
 
 	let imageData: ImageData;
 
-	let heatPrev = new Uint8Array(0);
-	let heatNext = new Uint8Array(0);
+	let heatPrev = new Float32Array(0);
+	let heatNext = new Float32Array(0);
 
-	const padSides = 1;
+	const padSides = 0;
 	const padTop = 1;
 	const padBottom = 4;
 
@@ -78,16 +78,17 @@
 	function createFireBuffer(width: number, height: number) {
 		paddedWidth = width + padSides * 2;
 		paddedHeight = height + padTop + padBottom;
-		return new Uint8Array(paddedWidth * paddedHeight);
+		return new Float32Array(paddedWidth * paddedHeight);
 	}
 
 	// Helper: get fire value at (x, y) with padding-aware indexing
-	function getFire(fire: Uint8Array, x: number, y: number) {
-		return fire[y * paddedWidth + x];
+	function getFire(fire: Float32Array, x: number, y: number) {
+		// Wrap x around using modulo
+		return fire[y * paddedWidth + ((x + heatWidth) % heatWidth)];
 	}
 
 	// Kernel: compute next fire value at (x, y)
-	function fireMath(x: number, y: number, heatPrev: Uint8Array) {
+	function fireMath(x: number, y: number, heatPrev: Float32Array) {
 		let total = 0;
 
 		total += getFire(heatPrev, x + 0, y - 1);
@@ -107,7 +108,7 @@
 		total += getFire(heatPrev, x + 0, y + 4);
 		total += getFire(heatPrev, x + 1, y + 4);
 
-		return (total / 12) | 0; // integer division
+		return total / 12.02;
 	}
 
 	// Advance one frame: compute nextFire from prevFire
@@ -117,14 +118,14 @@
 		[heatPrev, heatNext] = [heatNext, heatPrev];
 
 		// Add heat to bottom rows (fuel source)
-		const bottomStart = heatHeight + padTop;
-		const bottomEnd = bottomStart + padBottom;
+		const heatRows = 4;
+		const bottomStart = heatHeight + padTop - heatRows;
+		const bottomEnd = bottomStart + heatRows;
 
 		for (let y = bottomStart; y < bottomEnd; y++) {
 			for (let x = padSides; x < heatWidth + padSides; x++) {
 				const idx = y * paddedWidth + x;
-				// Random heat: 0–255, or bias toward hotter values
-				heatPrev[idx] = Math.random() < 0.73 ? 255 : 0;
+				heatPrev[idx] = Math.random() < 0.5 ? 350 : 0;
 			}
 		}
 
@@ -137,7 +138,7 @@
 		//console.log(heatNext);
 	}
 
-	export function renderFire(noise: Uint8Array, imageData: ImageData, palette = paletteGray) {
+	export function renderFire(noise: Float32Array, imageData: ImageData, palette = paletteGray) {
 		const data32 = new Uint32Array(imageData.data.buffer);
 		const paddedWidth = heatWidth + padSides * 2;
 
@@ -146,7 +147,7 @@
 			const rowStart = y * paddedWidth + padSides;
 			for (let x = 0; x < heatWidth; x++) {
 				const idx = rowStart + x;
-				data32[dst++] = palette[noise[idx]];
+				data32[dst++] = palette[noise[idx] | 0];
 			}
 		}
 
