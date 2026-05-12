@@ -117,6 +117,8 @@
 
 		[heatPrev, heatNext] = [heatNext, heatPrev];
 
+		heatNext.fill(160); // Invisible background heat.
+
 		// Add heat to bottom rows (fuel source)
 		const heatRows = 4;
 		const bottomStart = heatHeight + padTop - heatRows;
@@ -129,7 +131,7 @@
 			}
 		}
 
-		for (let y = heatHeight; y > heatHeight - 150; y--) {
+		for (let y = heatHeight; y > 0; y--) {
 			let maxHeat = 0;
 
 			for (let x = padSides; x < heatWidth + padSides; x++) {
@@ -139,15 +141,11 @@
 
 				maxHeat = Math.max(maxHeat, heatValue);
 			}
-			/*
-			if (maxHeat < 144) {
-				console.log('failed heat threshold!!', y);
+
+			if (maxHeat < 163) {
 				break;
 			}
-			*/
 		}
-
-		//console.log(heatNext);
 	}
 
 	export function renderFire(noise: Float32Array, imageData: ImageData, palette = paletteGray) {
