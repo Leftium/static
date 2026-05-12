@@ -129,12 +129,24 @@
 			}
 		}
 
-		for (let y = padTop; y < heatHeight + padTop; y++) {
+		for (let y = heatHeight; y > heatHeight - 150; y--) {
+			let maxHeat = 0;
+
 			for (let x = padSides; x < heatWidth + padSides; x++) {
-				const idx = y * paddedWidth + x;
-				heatNext[idx] = fireMath(x, y, heatPrev);
+				const index = y * paddedWidth + x;
+				const heatValue = fireMath(x, y, heatPrev);
+				heatNext[index] = heatValue;
+
+				maxHeat = Math.max(maxHeat, heatValue);
 			}
+			/*
+			if (maxHeat < 144) {
+				console.log('failed heat threshold!!', y);
+				break;
+			}
+			*/
 		}
+
 		//console.log(heatNext);
 	}
 
