@@ -69,6 +69,9 @@
 			///console.log('C', { i, r, g, b });
 			i--;
 		}
+
+		// Use blue channel to track fire intensitiy value.
+		//palette = palette.map((value, index) => value | (index << 16));
 		return palette;
 	}
 
@@ -127,7 +130,7 @@
 		for (let y = bottomStart; y < bottomEnd; y++) {
 			for (let x = padSides; x < heatWidth + padSides; x++) {
 				const idx = y * paddedWidth + x;
-				heatPrev[idx] = Math.random() < 0.5 ? 350 : 0;
+				heatPrev[idx] = Math.random() < 0.5 ? 505 : -145;
 			}
 		}
 
@@ -143,6 +146,7 @@
 			}
 
 			if (maxHeat < 163) {
+				//console.log('break:', {y})
 				break;
 			}
 		}
@@ -169,6 +173,9 @@
 	<GraphicalEffect
 		oninit={(fx: FxState) => {
 			fx.standardSize = true;
+			//fx.standardWidth = 500
+			//fx.standardHeight = 800
+			//fx.pixelAspectRatio = .5
 
 			fx.crtScanlines = false;
 			fx.scalingFactor = 1 / 2;
