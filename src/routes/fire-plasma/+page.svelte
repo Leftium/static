@@ -190,8 +190,8 @@
 			//fx.paused = true;
 
 			fx.palettes.push(makeFirePalette());
-			fx.palettes.push(makeFirePalette({ blue: true }));
 			fx.palettes.push(makeFirePalette({ extended: true }));
+			fx.palettes.push(makeFirePalette({ blue: true }));
 			fx.palettes.push(makeFirePalette({ extended: true, blue: true }));
 
 			fx.paletteIndex = 2;
