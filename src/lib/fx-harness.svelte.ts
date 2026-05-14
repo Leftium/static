@@ -1,6 +1,6 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
-import { paletteGray } from '$lib/palette';
+import { makePaletteSlice, paletteGray } from '$lib/palette';
 
 export type FxState = {
 	paused: boolean;
@@ -20,6 +20,9 @@ export type FxState = {
 
 	palettes: Uint32Array[];
 	paletteIndex: number;
+
+	low: number;
+	high: number;
 };
 
 type FxHarnessOptions = {
@@ -73,8 +76,11 @@ export function makeFxHarness() {
 		dimensions: 'WxH (WxH)',
 		infoString: 'info',
 
-		palettes: [paletteGray],
-		paletteIndex: 0
+		palettes: [paletteGray, paletteGray],
+		paletteIndex: 0,
+
+		low: 161,
+		high: 161
 	});
 
 	function fxHarness({
@@ -143,6 +149,39 @@ export function makeFxHarness() {
 					const number = Number(event.key);
 					fx.paletteIndex = Math.min(number, fx.palettes.length - 1);
 				}
+
+				if (event.key === '-') {
+					fx.paletteIndex = (fx.paletteIndex - 1 + fx.palettes.length) % fx.palettes.length;
+				}
+
+				if (event.key === 'ArrowUp') {
+					fx.low = (fx.low + 1) % 256;
+					fx.high = (fx.high + 1) % 256;
+
+					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+				}
+
+				if (event.key === 'ArrowDown') {
+					fx.low = (fx.low - 1 + 256) % 256;
+					fx.high = (fx.high - 1 + 256) % 256;
+
+					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+				}
+
+				if (event.key === 'ArrowRight') {
+					fx.high = (fx.high + 1) % 256;
+					fx.low = Math.min(fx.low, fx.low);
+
+					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+				}
+
+				if (event.key === 'ArrowLeft') {
+					fx.high = (fx.high - 1 + 256) % 256;
+					fx.low = Math.min(fx.low, fx.low);
+
+					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+				}
+				internalRender(fx);
 			}
 
 			function internalClick(fx: FxState) {
@@ -198,6 +237,9 @@ export function makeFxHarness() {
 				if (initHandler) {
 					initHandler(fx);
 				}
+
+				fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+
 				internalResize(fx);
 			});
 
@@ -209,7 +251,8 @@ export function makeFxHarness() {
 					${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
 					${frameTime === 2222 ? '0' : frameTime.toFixed(1)}ms
 					${fx.dimensions}
-					Palette: ${fx.paletteIndex}`;
+					Palette: ${fx.paletteIndex};
+					Range: ${fx.low}-${fx.high}`;
 			}
 			setTimeout(renderInfo);
 

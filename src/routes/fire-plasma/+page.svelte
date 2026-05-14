@@ -127,7 +127,7 @@
 
 		[heatPrev, heatNext] = [heatNext, heatPrev];
 
-		heatNext.fill(160); // Invisible background heat.
+		//heatNext.fill(160); // Invisible background heat.
 
 		// Add heat to bottom rows (fuel source)
 		const heatRows = 4;
@@ -154,7 +154,7 @@
 
 			if (maxHeat < 163) {
 				//console.log('break:', {y})
-				break;
+				//break;
 			}
 		}
 	}
@@ -180,8 +180,8 @@
 	<GraphicalEffect
 		oninit={(fx: FxState) => {
 			fx.standardSize = true;
-			//fx.standardWidth = 500
-			//fx.standardHeight = 800
+			fx.standardWidth = 500;
+			fx.standardHeight = 800;
 			//fx.pixelAspectRatio = .5
 
 			fx.crtScanlines = false;
@@ -194,7 +194,10 @@
 			fx.palettes.push(makeFirePalette({ extended: true }));
 			fx.palettes.push(makeFirePalette({ extended: true, blue: true }));
 
-			fx.paletteIndex = 1;
+			fx.paletteIndex = 2;
+
+			fx.low = 131;
+			fx.high = 131;
 		}}
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
