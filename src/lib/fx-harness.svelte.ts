@@ -182,6 +182,7 @@ export function makeFxHarness() {
 					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
 				}
 				internalRender(fx);
+				renderInfo();
 			}
 
 			function internalClick(fx: FxState) {
