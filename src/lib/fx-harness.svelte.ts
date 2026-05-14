@@ -1,5 +1,6 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
+import { paletteGray } from '$lib/palette';
 
 export type FxState = {
 	paused: boolean;
@@ -16,6 +17,9 @@ export type FxState = {
 
 	dimensions: string;
 	infoString: string;
+
+	palettes: Uint32Array[];
+	paletteIndex: number;
 };
 
 type FxHarnessOptions = {
@@ -67,7 +71,10 @@ export function makeFxHarness() {
 		pixelAspectRatio: 1,
 
 		dimensions: 'WxH (WxH)',
-		infoString: 'info'
+		infoString: 'info',
+
+		palettes: [paletteGray],
+		paletteIndex: 0
 	});
 
 	function fxHarness({
@@ -121,6 +128,14 @@ export function makeFxHarness() {
 
 				if (event.key === ' ') {
 					fx.paused = !fx.paused;
+				}
+
+				if (event.key === '=') {
+					fx.paletteIndex = (fx.paletteIndex + 1) % fx.palettes.length;
+				}
+
+				if (event.key === '-') {
+					fx.paletteIndex = (fx.paletteIndex - 1 + fx.palettes.length) % fx.palettes.length;
 				}
 			}
 
@@ -187,7 +202,8 @@ export function makeFxHarness() {
 				fx.infoString = `
 					${fps.toFixed(0)} FPS (${fpsPercentage.toFixed(0)}%)
 					${frameTime === 2222 ? '0' : frameTime.toFixed(1)}ms
-					${fx.dimensions}`;
+					${fx.dimensions}
+					Palette: ${fx.paletteIndex}`;
 			}
 			setTimeout(renderInfo);
 

@@ -18,7 +18,13 @@
 	let paddedWidth = 0;
 	let paddedHeight = 0;
 
-	function makeFirePalette(extended = false) {
+	function makeFirePalette(options: { blue?: boolean; extended?: boolean } = {}) {
+		options = {
+			blue: false,
+			extended: false,
+			...options
+		};
+
 		let r = 0,
 			g = 0,
 			b = 0;
@@ -46,7 +52,7 @@
 		g++;
 		while (g > 128) {
 			g -= 4;
-			if (!extended) {
+			if (!options.extended) {
 				g -= 4;
 			}
 
@@ -60,7 +66,7 @@
 			r -= 8;
 			g -= 4;
 
-			if (!extended) {
+			if (!options.extended) {
 				r -= 8;
 				g -= 4;
 			}
@@ -70,12 +76,13 @@
 			i--;
 		}
 
-		// Use blue channel to track fire intensitiy value.
-		//palette = palette.map((value, index) => value | (index << 16));
+		if (options.blue) {
+			// Use blue channel to track fire intensitiy value.
+			palette = palette.map((value, index) => value | (index << 16));
+		}
+
 		return palette;
 	}
-
-	const paletteFire = makeFirePalette(false);
 
 	// Utility: create fire buffer with padding
 	function createFireBuffer(width: number, height: number) {
@@ -181,6 +188,13 @@
 			fx.scalingFactor = 1 / 2;
 
 			//fx.paused = true;
+
+			fx.palettes.push(makeFirePalette());
+			fx.palettes.push(makeFirePalette({ blue: true }));
+			fx.palettes.push(makeFirePalette({ extended: true }));
+			fx.palettes.push(makeFirePalette({ extended: true, blue: true }));
+
+			fx.paletteIndex = 1;
 		}}
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
@@ -196,9 +210,13 @@
 			//console.log('onupdate')
 			stepFire();
 		}}
-		onrender={() => {
+		onrender={(fx) => {
 			//stepFire()
-			return renderFire(heatNext, imageData, paletteFire);
+			return renderFire(
+				heatNext,
+				imageData,
+				fx.palettes[fx.paletteIndex] as Uint32Array<ArrayBuffer>
+			);
 		}}
 	></GraphicalEffect>
 </main>
