@@ -137,6 +137,12 @@ export function makeFxHarness() {
 				if (event.key === '-') {
 					fx.paletteIndex = (fx.paletteIndex - 1 + fx.palettes.length) % fx.palettes.length;
 				}
+
+				// Convert event.key to number if it's between '0' and '9'
+				if (event.key >= '0' && event.key <= '9') {
+					const number = Number(event.key);
+					fx.paletteIndex = Math.min(number, fx.palettes.length - 1);
+				}
 			}
 
 			function internalClick(fx: FxState) {
