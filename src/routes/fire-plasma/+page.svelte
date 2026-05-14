@@ -194,8 +194,6 @@
 			fx.palettes.push(makeFirePalette({ blue: true }));
 			fx.palettes.push(makeFirePalette({ extended: true, blue: true }));
 
-			fx.paletteIndex = 2;
-
 			fx.low = 131;
 			fx.high = 131;
 		}}

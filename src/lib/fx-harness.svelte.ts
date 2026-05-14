@@ -76,8 +76,8 @@ export function makeFxHarness() {
 		dimensions: 'WxH (WxH)',
 		infoString: 'info',
 
-		palettes: [paletteGray, paletteGray],
-		paletteIndex: 0,
+		palettes: [paletteGray],
+		paletteIndex: 1,
 
 		low: 161,
 		high: 161
@@ -158,28 +158,28 @@ export function makeFxHarness() {
 					fx.low = (fx.low + 1) % 256;
 					fx.high = (fx.high + 1) % 256;
 
-					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 				}
 
 				if (event.key === 'ArrowDown') {
 					fx.low = (fx.low - 1 + 256) % 256;
 					fx.high = (fx.high - 1 + 256) % 256;
 
-					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 				}
 
 				if (event.key === 'ArrowRight') {
 					fx.high = (fx.high + 1) % 256;
 					fx.low = Math.min(fx.low, fx.low);
 
-					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 				}
 
 				if (event.key === 'ArrowLeft') {
 					fx.high = (fx.high - 1 + 256) % 256;
 					fx.low = Math.min(fx.low, fx.low);
 
-					fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 				}
 				internalRender(fx);
 				renderInfo();
@@ -239,7 +239,7 @@ export function makeFxHarness() {
 					initHandler(fx);
 				}
 
-				fx.palettes[1] = makePaletteSlice(fx.low, fx.high);
+				fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 
 				internalResize(fx);
 			});
