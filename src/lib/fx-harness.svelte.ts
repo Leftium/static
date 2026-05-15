@@ -1,6 +1,6 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
-import { makePaletteSlice, paletteGray } from '$lib/palette';
+import { makePaletteGraySlice, paletteGray } from '$lib/palette';
 
 export type FxState = {
 	paused: boolean;
@@ -156,7 +156,7 @@ export function makeFxHarness() {
 							fx.low = 0;
 							fx.high = 255;
 						}
-						fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+						fx.palettes[0] = makePaletteGraySlice(fx.low, fx.high);
 					}
 
 					fx.paletteIndex = Math.min(number, fx.palettes.length - 1);
@@ -193,7 +193,7 @@ export function makeFxHarness() {
 					fx.high = Math.max(0, fx.high + delta);
 					fx.low = Math.min(fx.low, fx.high);
 				}
-				fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+				fx.palettes[0] = makePaletteGraySlice(fx.low, fx.high);
 				internalRender(fx);
 				renderInfo();
 			}
@@ -252,7 +252,7 @@ export function makeFxHarness() {
 					initHandler(fx);
 				}
 
-				fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+				fx.palettes[0] = makePaletteGraySlice(fx.low, fx.high);
 
 				internalResize(fx);
 			});

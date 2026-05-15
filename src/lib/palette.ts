@@ -7,15 +7,7 @@ export function makePalette(calcColor: (i: number) => number) {
 	return new Uint32Array(256).map((_value, i) => calcColor(i));
 }
 
-export const paletteGray = makePalette((i) => {
-	const r = i,
-		g = i,
-		b = i,
-		a = 255;
-	return (a << 24) | (b << 16) | (g << 8) | r;
-});
-
-export function makePaletteSlice(low: number, high = 255) {
+export function makePaletteGraySlice(low = 0, high = 255) {
 	return makePalette((i) => {
 		if (i < low) {
 			return makeColor(0, i, 255);
@@ -25,6 +17,8 @@ export function makePaletteSlice(low: number, high = 255) {
 		return makeColor(255, i, 255);
 	});
 }
+
+export const paletteGray = makePaletteGraySlice();
 
 export const paletteCyan = makePalette((i) => {
 	const g = i,
