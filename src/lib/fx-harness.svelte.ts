@@ -79,8 +79,8 @@ export function makeFxHarness() {
 		palettes: [paletteGray],
 		paletteIndex: 1,
 
-		low: 161,
-		high: 161
+		low: 128,
+		high: 128
 	});
 
 	function fxHarness({
@@ -147,6 +147,18 @@ export function makeFxHarness() {
 				// Convert event.key to number if it's between '0' and '9'
 				if (event.key >= '0' && event.key <= '9') {
 					const number = Number(event.key);
+
+					if (number === 0 && fx.paletteIndex === 0) {
+						if (fx.low === 0 && fx.high === 255) {
+							fx.low = 128;
+							fx.high = 128;
+						} else {
+							fx.low = 0;
+							fx.high = 255;
+						}
+						fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+					}
+
 					fx.paletteIndex = Math.min(number, fx.palettes.length - 1);
 				}
 
@@ -155,32 +167,33 @@ export function makeFxHarness() {
 				}
 
 				if (event.key === 'ArrowUp') {
-					fx.low = (fx.low + 1) % 256;
-					fx.high = (fx.high + 1) % 256;
+					const delta = event.shiftKey ? 10 : event.altKey ? 255 - fx.low : 1;
 
-					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+					fx.low = Math.min(255, fx.low + delta);
+					fx.high = Math.min(255, fx.high + delta);
 				}
 
 				if (event.key === 'ArrowDown') {
-					fx.low = (fx.low - 1 + 256) % 256;
-					fx.high = (fx.high - 1 + 256) % 256;
+					const delta = event.shiftKey ? -10 : event.altKey ? -fx.low : -1;
 
-					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+					fx.low = Math.max(0, fx.low + delta);
+					fx.high = Math.max(0, fx.high + delta);
 				}
 
 				if (event.key === 'ArrowRight') {
-					fx.high = (fx.high + 1) % 256;
-					fx.low = Math.min(fx.low, fx.low);
+					const delta = event.shiftKey ? 10 : event.altKey ? 255 - fx.high : 1;
 
-					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+					fx.high = Math.min(255, fx.high + delta);
+					fx.low = Math.min(fx.low, fx.high);
 				}
 
 				if (event.key === 'ArrowLeft') {
-					fx.high = (fx.high - 1 + 256) % 256;
-					fx.low = Math.min(fx.low, fx.low);
+					const delta = event.shiftKey ? -10 : event.altKey ? fx.low - fx.high : -1;
 
-					fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
+					fx.high = Math.max(0, fx.high + delta);
+					fx.low = Math.min(fx.low, fx.high);
 				}
+				fx.palettes[0] = makePaletteSlice(fx.low, fx.high);
 				internalRender(fx);
 				renderInfo();
 			}
