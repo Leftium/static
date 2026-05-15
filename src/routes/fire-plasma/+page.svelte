@@ -128,8 +128,8 @@
 			fx.palettes.push(makeFirePalette({ blue: true }));
 			fx.palettes.push(makeFirePalette({ extended: true, blue: true }));
 
-			fx.low = 131;
-			fx.high = 131;
+			fx.low = 140;
+			fx.high = 140;
 		}}
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
