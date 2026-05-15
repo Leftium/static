@@ -15,7 +15,7 @@
 	<GraphicalEffect
 		oninit={(fx: FxState) => {
 			//console.log('init', $state.snapshot(fx));
-			fx.scalingFactor = 1 / 1;
+			fx.scalingFactor = 1 / 2;
 			// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 			fx.pixelAspectRatio = ((4 / 440) * 486) / 3;
 		}}
