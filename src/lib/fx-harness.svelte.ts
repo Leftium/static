@@ -253,6 +253,7 @@ export function makeFxHarness() {
 				}
 
 				fx.palettes[0] = makePaletteGraySlice(fx.low, fx.high);
+				fx.paletteIndex = Math.min(fx.paletteIndex, fx.palettes.length - 1);
 
 				internalResize(fx);
 			});

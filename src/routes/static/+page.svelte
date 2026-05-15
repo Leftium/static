@@ -2,6 +2,7 @@
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import { generateNoiseUint8, renderNoisePalette } from '$lib/generateNoise';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
+	import { makeFirePalette, paletteCyan, paletteGray } from '$lib/palette';
 
 	let imageData: ImageData;
 	let noisePrev = new Uint8Array(0);
@@ -18,6 +19,10 @@
 			fx.scalingFactor = 1 / 2;
 			// Pixel ratio based on NTSC 440x486 resolution stretched to 4:3 aspect ratio.
 			fx.pixelAspectRatio = ((4 / 440) * 486) / 3;
+
+			fx.palettes.push(paletteGray);
+			fx.palettes.push(paletteCyan);
+			fx.palettes.push(makeFirePalette({ extended: true }));
 		}}
 		onresize={(fx, width, height) => {
 			console.log('resizeHandler', { width, height });
@@ -58,7 +63,12 @@
 				}
 			}
 		}}
-		onrender={() => renderNoisePalette(noisePrev, imageData)}
+		onrender={(fx) =>
+			renderNoisePalette(
+				noisePrev,
+				imageData,
+				fx.palettes[fx.paletteIndex] as Uint32Array<ArrayBuffer>
+			)}
 	></GraphicalEffect>
 </main>
 

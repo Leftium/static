@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
-	import { makeColor, paletteGray } from '$lib/palette';
+	import { makeFirePalette, paletteGray } from '$lib/palette';
 
 	let imageData: ImageData;
 
@@ -17,72 +17,6 @@
 
 	let paddedWidth = 0;
 	let paddedHeight = 0;
-
-	function makeFirePalette(options: { blue?: boolean; extended?: boolean } = {}) {
-		options = {
-			blue: false,
-			extended: false,
-			...options
-		};
-
-		let r = 0,
-			g = 0,
-			b = 0;
-
-		let palette = new Uint32Array(256);
-		palette.fill(makeColor(r, g, b));
-
-		let i = 255;
-		r = b = g = 255;
-
-		while (i > 223) {
-			palette[i] = makeColor(r, g, b);
-			///console.log('A', { i, r, g, b });
-			i--;
-		}
-
-		b++;
-		while (b > 0) {
-			b -= 8;
-			palette[i] = makeColor(r, g, b);
-			///console.log('A', { i, r, g, b });
-			i--;
-		}
-
-		g++;
-		while (g > 128) {
-			g -= 4;
-			if (!options.extended) {
-				g -= 4;
-			}
-
-			palette[i] = makeColor(r, g, b);
-			///console.log('B', { i, r, g, b });
-			i--;
-		}
-
-		r++;
-		while (g > 0) {
-			r -= 8;
-			g -= 4;
-
-			if (!options.extended) {
-				r -= 8;
-				g -= 4;
-			}
-
-			palette[i] = makeColor(r, g, b);
-			///console.log('C', { i, r, g, b });
-			i--;
-		}
-
-		if (options.blue) {
-			// Use blue channel to track fire intensitiy value.
-			palette = palette.map((value, index) => value | (index << 16));
-		}
-
-		return palette;
-	}
 
 	// Utility: create fire buffer with padding
 	function createFireBuffer(width: number, height: number) {
