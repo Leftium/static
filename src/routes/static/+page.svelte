@@ -26,6 +26,10 @@
 		}}
 		onresize={(fx, width, height) => {
 			console.log('resizeHandler', { width, height });
+			if (imageData && imageData.height === height && imageData.width === width) {
+				return;
+			}
+
 			imageData = createOpaqueImageData(width, height);
 			noisePrev = new Uint8Array(width * height);
 			noiseNext = new Uint8Array(width * height);
