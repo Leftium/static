@@ -194,7 +194,7 @@ export function makeFxHarness() {
 					fx.low = Math.min(fx.low, fx.high);
 				}
 				fx.palettes[0] = makePaletteGraySlice(fx.low, fx.high);
-				internalRender(fx);
+				internalResize(fx);
 				renderInfo();
 			}
 

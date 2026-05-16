@@ -18,6 +18,8 @@
 	let paddedWidth = 0;
 	let paddedHeight = 0;
 
+	let minimalHeatThreshold = 0;
+
 	// Utility: create fire buffer with padding
 	function createFireBuffer(width: number, height: number) {
 		paddedWidth = width + padSides * 2;
@@ -61,8 +63,6 @@
 
 		[heatPrev, heatNext] = [heatNext, heatPrev];
 
-		//heatNext.fill(160); // Invisible background heat.
-
 		// Add heat to bottom rows (fuel source)
 		const heatRows = 4;
 		const bottomStart = heatHeight + padTop - heatRows;
@@ -86,9 +86,9 @@
 				maxHeat = Math.max(maxHeat, heatValue);
 			}
 
-			if (maxHeat < 163) {
+			if (maxHeat < minimalHeatThreshold) {
 				//console.log('break:', {y})
-				//break;
+				break;
 			}
 		}
 	}
@@ -131,7 +131,7 @@
 			fx.low = 140;
 			fx.high = 140;
 		}}
-		onresize={(_fx, width, height) => {
+		onresize={(fx, width, height) => {
 			console.log('resizeHandler', { width, height });
 			imageData = createOpaqueImageData(width, height);
 
@@ -140,6 +140,20 @@
 
 			heatPrev = createFireBuffer(width, height);
 			heatNext = createFireBuffer(width, height);
+
+			switch (fx.paletteIndex) {
+				case 1:
+					minimalHeatThreshold = 140;
+					break;
+				case 2:
+					minimalHeatThreshold = 120;
+					break;
+				default:
+					minimalHeatThreshold = 0;
+			}
+			heatPrev.fill(minimalHeatThreshold); // Invisible background heat.
+			heatNext.fill(minimalHeatThreshold); // Invisible background heat.
+			//console.log('resize', { maxHeatThreshold });
 		}}
 		onupdate={() => {
 			//console.log('onupdate')
