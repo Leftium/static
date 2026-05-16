@@ -34,6 +34,8 @@
 			fx.scalingFactor = 1;
 
 			fx.paused = true;
+
+			fx.palettes.push(paletteCyan);
 		}}
 		onresize={(_fx, width, height) => {
 			console.log('resizeHandler', { width, height });
@@ -42,10 +44,11 @@
 
 			generateNoise(grid);
 		}}
-		onupdate={() => {
-			rotateLeft(paletteCyan);
+		onupdate={(fx) => {
+			rotateLeft(fx.palettes[fx.paletteIndex] as Uint32Array<ArrayBuffer>);
 		}}
-		onrender={() => renderNoisePalette(grid, imageData, paletteCyan)}
+		onrender={(fx) =>
+			renderNoisePalette(grid, imageData, fx.palettes[fx.paletteIndex] as Uint32Array<ArrayBuffer>)}
 	></GraphicalEffect>
 </main>
 

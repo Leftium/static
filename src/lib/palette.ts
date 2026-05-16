@@ -107,4 +107,5 @@ export function rotateLeft(arr: Uint32Array<ArrayBuffer>) {
 		arr[i] = arr[i + 1];
 	}
 	arr[arr.length - 1] = first;
+	return arr;
 }
