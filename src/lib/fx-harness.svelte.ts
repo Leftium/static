@@ -141,7 +141,7 @@ export function makeFxHarness() {
 				}
 
 				if (event.key === '-') {
-					fx.paletteIndex = (fx.paletteIndex + fx.palettes.length) % fx.palettes.length;
+					fx.paletteIndex = (fx.paletteIndex - 1 + fx.palettes.length) % fx.palettes.length;
 				}
 
 				// Convert event.key to number if it's between '0' and '9'
@@ -160,10 +160,6 @@ export function makeFxHarness() {
 					}
 
 					fx.paletteIndex = Math.min(number, fx.palettes.length - 1);
-				}
-
-				if (event.key === '-') {
-					fx.paletteIndex = (fx.paletteIndex - 1 + fx.palettes.length) % fx.palettes.length;
 				}
 
 				if (event.key === 'ArrowUp') {
