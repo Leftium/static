@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { createOpaqueImageData, type FxState } from '$lib/fx-harness.svelte';
 	import GraphicalEffect from '$lib/GraphicalEffect.svelte';
-	import { makeFirePalette, paletteGray } from '$lib/palette';
+	import { makeColor, makeFirePalette, paletteGray } from '$lib/palette';
+	import { onMount } from 'svelte';
 
 	let imageData: ImageData;
 
@@ -10,7 +11,7 @@
 
 	const padSides = 0;
 	const padTop = 1;
-	const padBottom = 4;
+	const padBottom = 6;
 
 	let heatWidth = 0;
 	let heatHeight = 0;
@@ -19,6 +20,12 @@
 	let paddedHeight = 0;
 
 	let minimalHeatThreshold = 0;
+
+	let fireMaths = [fireMathNull, fireMath, fireMathWide, fireMathSkinny];
+	let fireMathIndex = $state(1);
+
+	const colorOver = makeColor(255, 0, 255); // Purple.
+	const colorUnder = makeColor(0, 255, 0); // Green.
 
 	// Utility: create fire buffer with padding
 	function createFireBuffer(width: number, height: number) {
@@ -31,6 +38,11 @@
 	function getFire(fire: Float32Array, x: number, y: number) {
 		// Wrap x around using modulo
 		return fire[y * paddedWidth + ((x + heatWidth) % heatWidth)];
+	}
+
+	// Null kernel.
+	function fireMathNull(x: number, y: number, heatPrev: Float32Array) {
+		return getFire(heatPrev, x, y);
 	}
 
 	// Kernel: compute next fire value at (x, y)
@@ -57,6 +69,47 @@
 		return total / 12.02;
 	}
 
+	// Kernel: compute next fire value at (x, y)
+	function fireMathWide(x: number, y: number, heatPrev: Float32Array) {
+		let total = 0;
+
+		total += getFire(heatPrev, x + 0, y - 1);
+
+		total += getFire(heatPrev, x - 2, y + 0);
+		total += getFire(heatPrev, x + 0, y + 0) * 2;
+		total += getFire(heatPrev, x + 2, y + 0);
+
+		total += getFire(heatPrev, x + 0, y + 1);
+
+		total += getFire(heatPrev, x - 1, y + 2);
+		total += getFire(heatPrev, x + 1, y + 2);
+
+		total += getFire(heatPrev, x + 0, y + 3);
+
+		total += getFire(heatPrev, x - 1, y + 4);
+		total += getFire(heatPrev, x + 0, y + 4);
+		total += getFire(heatPrev, x + 1, y + 4);
+
+		return total / 12.02;
+	}
+
+	// Fire Kernal from: https://github.com/Leftium/fire/blob/41a6144234a7837767454e9669f4a3a6423431f2/src/main.cpp#L89-L100
+	function fireMathSkinny(x: number, y: number, heatPrev: Float32Array) {
+		//return getFire(heatPrev, x, y);
+
+		let sum =
+			getFire(heatPrev, x + 0, y + 1) +
+			getFire(heatPrev, x + 0, y + 2) +
+			getFire(heatPrev, x + 0, y + 3) +
+			getFire(heatPrev, x + 0, y + 4) +
+			getFire(heatPrev, x - 1, y + 5) +
+			getFire(heatPrev, x + 0, y + 5) +
+			getFire(heatPrev, x + 1, y + 5) +
+			getFire(heatPrev, x + 0, y + 6);
+		//return sum / 8 - sum / 4096;
+		return sum / 8.02;
+	}
+
 	// Advance one frame: compute nextFire from prevFire
 	function stepFire() {
 		//console.log('stepFire');
@@ -64,11 +117,11 @@
 		[heatPrev, heatNext] = [heatNext, heatPrev];
 
 		// Add heat to bottom rows (fuel source)
-		const heatRows = 4;
+		const heatRows = 6;
 		const bottomStart = heatHeight + padTop - heatRows;
-		const bottomEnd = bottomStart + heatRows;
+		const bottomEnd = heatHeight + padTop;
 
-		for (let y = bottomStart; y < bottomEnd; y++) {
+		for (let y = bottomStart; y <= bottomEnd; y++) {
 			for (let x = padSides; x < heatWidth + padSides; x++) {
 				const idx = y * paddedWidth + x;
 				heatPrev[idx] = Math.random() < 0.5 ? 505 : -145;
@@ -80,7 +133,7 @@
 
 			for (let x = padSides; x < heatWidth + padSides; x++) {
 				const index = y * paddedWidth + x;
-				const heatValue = fireMath(x, y, heatPrev);
+				const heatValue = fireMaths[fireMathIndex](x, y, heatPrev);
 				heatNext[index] = heatValue;
 
 				maxHeat = Math.max(maxHeat, heatValue);
@@ -101,13 +154,35 @@
 		for (let y = padTop; y < heatHeight + padTop; y++) {
 			const rowStart = y * paddedWidth + padSides;
 			for (let x = 0; x < heatWidth; x++) {
-				const idx = rowStart + x;
-				data32[dst++] = palette[noise[idx] | 0];
+				const heat = noise[rowStart + x] | 0;
+				data32[dst++] = heat > 255 ? colorOver : heat < 0 ? colorUnder : palette[heat];
 			}
 		}
 
 		return imageData;
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === '.') {
+			fireMathIndex = (fireMathIndex + 1) % fireMaths.length;
+		}
+
+		if (event.key === ',') {
+			fireMathIndex = (fireMathIndex - 1 + fireMaths.length) % fireMaths.length;
+		}
+	}
+
+	onMount(() => {
+		const abortController = new AbortController();
+		const { signal } = abortController;
+
+		window.addEventListener('keydown', handleKeydown, { signal });
+
+		return () => {
+			// Clean up
+			abortController.abort();
+		};
+	});
 </script>
 
 <main>
