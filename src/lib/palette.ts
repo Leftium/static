@@ -10,11 +10,11 @@ export function makePalette(calcColor: (i: number) => number) {
 export function makePaletteGraySlice(low = 0, high = 255) {
 	return makePalette((i) => {
 		if (i < low) {
-			return makeColor(0, i, 255);
+			return makeColor(i >> 1, i, 255);
 		} else if (i <= high) {
 			return makeColor(i, i, i);
 		}
-		return makeColor(255, i, 255);
+		return makeColor(255, i, i >> 1);
 	});
 }
 
